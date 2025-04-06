@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Sean Ovan",
+    "position": "Head of Frontend",
+    "bio": "Designs and builds user interfaces for the data dashboard",
+    "image": "https://randomuser.me/api/portraits/men/32.jpg"
+  },
+  {
+    "name": "Christian Lee",
+    "position": "Backend Support",
+    "bio": "Develops complex cross-dataset queries",
+    "image": "https://randomuser.me/api/portraits/men/68.jpg"
+  },
+  {
+    "name": "Danielle Parker",
+    "position": "Data Scientist",
+    "bio": "Cleans and structures the jobs dataset",
+    "image": "https://randomuser.me/api/portraits/women/65.jpg"
+  },
+  {
+    "name": "Rena Kim",
+    "position": "Backend Engineer",
+    "bio": "Processes the crime dataset and builds endpoints",
+    "image": "https://randomuser.me/api/portraits/women/44.jpg"
+  },
+  {
+    "name": "Michael Johnson",
+    "position": "ML Engineer",
+    "bio": "Develops machine learning models for crime prediction",
+    "image": "https://randomuser.me/api/portraits/men/22.jpg"
+  },
+  {
+    "name": "Sarah Wilson",
+    "position": "UI/UX Designer",
+    "bio": "Creates intuitive user experiences for the platform",
+    "image": "https://randomuser.me/api/portraits/women/28.jpg"
+  }
+] 

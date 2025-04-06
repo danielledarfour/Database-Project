@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+
+  body {
+    @apply bg-eerie-black text-white min-h-screen font-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+
+  /* Ensure form field text is visible */
+  input, select, textarea {
+    @apply text-eerie-black;
+  }
+}
+
+/* Animated border styles */
+.animated-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(58, 183, 149, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.animated-border:hover::before {
+  opacity: 1;
+  animation: border-scan 2s ease infinite;
+}
+
+@keyframes border-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Mouse position light effect */
+.mouse-position-border {
+  --mouse-x: 0px;
+  --mouse-y: 0px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mouse-position-border::before {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(58, 183, 149, 0.5) 0%, rgba(58, 183, 149, 0) 70%);
+  border-radius: 50%;
+  left: var(--mouse-x);
+  top: var(--mouse-y);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  z-index: 1;
+  transition: opacity 0.2s;
+}
+
+.mouse-position-border:hover::before {
+  opacity: 1;
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-mint text-white rounded-md hover:bg-cambridge-blue transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-celadon text-eerie-black font-medium rounded-md hover:bg-cambridge-blue transition-colors;
+  }
+  
+  .btn-accent {
+    @apply px-4 py-2 bg-sunglow text-eerie-black font-medium rounded-md hover:bg-opacity-80 transition-colors;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-card p-6 border border-gray-100 hover:border-mint/30 transition-colors animated-border;
+  }
+  
+  .section {
+    @apply py-12;
+  }
+  
+  .section-dark {
+    @apply py-12 bg-eerie-black text-white;
+  }
+  
+  .section-light {
+    @apply py-12 bg-beige text-eerie-black;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mint focus:border-mint text-eerie-black animated-border;
+  }
+  
+  .table-container {
+    @apply relative overflow-hidden bg-white shadow-md rounded-lg border border-gray-200 mouse-position-border;
+  }
+  
+  .table-header {
+    @apply bg-mint/10 text-mint font-medium;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-primary;
+  }
+  
+  .navbar {
+    @apply bg-eerie-black shadow-md text-white;
+  }
+  
+  .footer {
+    @apply bg-mint text-white;
+  }
+  
+  .hero-section {
+    @apply bg-beige relative py-24 md:py-32 text-eerie-black;
+  }
+  
+  .heading-xl {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold font-heading;
+  }
+  
+  .heading-lg {
+    @apply text-2xl md:text-3xl font-bold font-heading;
+  }
+  
+  .heading-md {
+    @apply text-xl md:text-2xl font-semibold font-heading;
+  }
+  
+  .input-field {
+    @apply bg-white border border-cambridge-blue rounded-md px-4 py-2 text-eerie-black focus:outline-none focus:ring-2 focus:ring-mint;
+  }
+
+  /* Specific section colors to ensure text visibility */
+  .search-header {
+    @apply bg-mint text-white;
+  }
+
+  .dashboard-header {
+    @apply bg-mint text-white;
+  }
+
+  /* Form field styles for improved visibility */
+  .form-input {
+    @apply bg-white text-eerie-black border border-cambridge-blue focus:border-mint focus:ring-2 focus:ring-mint;
+  }
+
+  .form-select {
+    @apply bg-white text-eerie-black border border-cambridge-blue focus:border-mint focus:ring-2 focus:ring-mint;
+  }
+
+  .search-results-item {
+    @apply bg-white text-eerie-black;
+  }
+}
