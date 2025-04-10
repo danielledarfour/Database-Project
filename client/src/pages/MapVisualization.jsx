@@ -36,13 +36,13 @@ const MapVisualization = () => {
       
       // Temporary empty placeholder data
       setStateData({
-        California: {
+    California: {
           crimeRate: 0,
           employmentRate: 0,
           topCrimes: [],
           topJobs: []
-        },
-        Texas: {
+    },
+    Texas: {
           crimeRate: 0,
           employmentRate: 0,
           topCrimes: [],
@@ -53,8 +53,8 @@ const MapVisualization = () => {
           employmentRate: 0,
           topCrimes: [],
           topJobs: []
-        },
-        Florida: {
+    },
+    Florida: {
           crimeRate: 0,
           employmentRate: 0,
           topCrimes: [],
@@ -95,16 +95,16 @@ const MapVisualization = () => {
   return (
     <div className="py-8 md:py-12 bg-eerie-black">
       <div className="container-custom mx-auto px-4 md:px-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
           className="mb-6"
         >
           <div className="bg-hunter-green py-4 px-6 rounded-lg shadow-md mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white">
               USA Data Map
-            </h1>
+              </h1>
             <p className="text-gray-200 text-sm mt-1">
               Explore crime rates and employment statistics across the United States
             </p>
@@ -126,10 +126,10 @@ const MapVisualization = () => {
               <div className="ml-3">
                 <p className="text-sm text-red-300">
                   Google Maps API key not detected. Please add your API key to the <code className="font-mono bg-red-900/30 px-1 rounded">.env</code> file as <code className="font-mono bg-red-900/30 px-1 rounded">VITE_GOOGLE_MAPS_API_KEY=your_api_key_here</code>
-                </p>
-              </div>
+              </p>
             </div>
           </div>
+        </div>
         )}
         
         {/* Control Panel */}
@@ -170,7 +170,7 @@ const MapVisualization = () => {
               <label htmlFor="region" className="block text-sm font-medium text-gray-300 mb-1">
                 Region
               </label>
-              <select
+              <select 
                 id="region"
                 className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-gray-200 focus:border-mint focus:outline-none focus:ring-mint sm:text-sm"
               >
@@ -181,9 +181,9 @@ const MapVisualization = () => {
                 <option value="west">West</option>
               </select>
             </div>
+            </div>
           </div>
-        </div>
-        
+          
         {/* Main Map Display - Full Width */}
         <div className="bg-eerie-black rounded-lg shadow-md border border-gray-800 p-4 mb-6">
           <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-800">
@@ -193,10 +193,10 @@ const MapVisualization = () => {
             {selectedState && (
               <div className="bg-gray-800 py-1 px-3 rounded-full text-sm font-medium text-mint">
                 Selected: {selectedState}
-              </div>
-            )}
-          </div>
-          
+                    </div>
+                  )}
+                </div>
+                
           <USAMap 
             setSelectedState={setSelectedState}
             dataType={dataType}
@@ -252,17 +252,17 @@ const MapVisualization = () => {
                       <div>
                         <h4 className="text-sm font-medium text-gray-300 mb-1">
                           Property Crime Rate
-                        </h4>
+                  </h4>
                         <div className="flex items-center">
                           <div className="w-full bg-gray-800 rounded-full h-2.5">
-                            <div 
+                      <div 
                               className="bg-red-500 h-2.5 rounded-full" 
                               style={{ width: '72%' }}
-                            ></div>
+                      ></div>
                           </div>
                           <span className="ml-2 text-sm text-gray-300">72%</span>
                         </div>
-                      </div>
+                    </div>
                     </>
                   ) : (
                     <>
@@ -275,11 +275,11 @@ const MapVisualization = () => {
                             <div 
                               className="bg-green-500 h-2.5 rounded-full" 
                               style={{ width: '67%' }}
-                            ></div>
+                      ></div>
                           </div>
                           <span className="ml-2 text-sm text-gray-300">67%</span>
                         </div>
-                      </div>
+                    </div>
                       <div>
                         <h4 className="text-sm font-medium text-gray-300 mb-1">
                           Job Growth
@@ -289,21 +289,21 @@ const MapVisualization = () => {
                             <div 
                               className="bg-green-500 h-2.5 rounded-full" 
                               style={{ width: '23%' }}
-                            ></div>
+                      ></div>
                           </div>
                           <span className="ml-2 text-sm text-gray-300">23%</span>
-                        </div>
-                      </div>
+                    </div>
+                  </div>
                     </>
                   )}
                 </div>
               </div>
               
-              <div>
+                    <div>
                 <h3 className="text-md font-medium text-mint mb-3 pb-1 border-b border-gray-800">
                   Key Metrics
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                   <div className="bg-eerie-black p-4 rounded-lg border border-gray-800">
                     <p className="text-sm text-gray-400 mb-1">
                       {dataType === 'crime' ? 'Total Incidents' : 'Total Workforce'}
@@ -313,8 +313,8 @@ const MapVisualization = () => {
                         ? Math.floor(Math.random() * 10000).toLocaleString()
                         : Math.floor(Math.random() * 5000000).toLocaleString()
                       }
-                    </p>
-                  </div>
+                          </p>
+                        </div>
                   <div className="bg-eerie-black p-4 rounded-lg border border-gray-800">
                     <p className="text-sm text-gray-400 mb-1">
                       {dataType === 'crime' ? 'Cost Impact' : 'Average Salary'}
@@ -324,17 +324,17 @@ const MapVisualization = () => {
                         ? Math.floor(Math.random() * 10000000).toLocaleString()
                         : Math.floor(Math.random() * 80000 + 30000).toLocaleString()
                       }
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
               <div>
                 <h3 className="text-md font-medium text-mint mb-3 pb-1 border-b border-gray-800">
                   Historical Trends
                 </h3>
                 <div className="space-y-4">
-                  <div>
+                    <div>
                     <h4 className="text-sm font-medium text-gray-300 mb-1">
                       Year-over-Year Change
                     </h4>
@@ -347,7 +347,7 @@ const MapVisualization = () => {
                       </span>
                     </div>
                   </div>
-                  <div>
+                    <div>
                     <h4 className="text-sm font-medium text-gray-300 mb-1">
                       5-Year Trend
                     </h4>
@@ -364,7 +364,7 @@ const MapVisualization = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>
             </div>
           </div>
         )}

@@ -1,0 +1,9 @@
+{
+  "rds_host": "cis4500projdatabase.c6m1ilm5fowl.us-east-1.rds.amazonaws.com",
+  "rds_port": "5432",
+  "rds_user": "cis4500projSRCD",
+  "rds_password": "90hKyrHEUasJObr",
+  "rds_db": "cis4500proj",
+  "server_host": "localhost",
+  "server_port": "5001"
+}
