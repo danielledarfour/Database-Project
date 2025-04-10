@@ -150,7 +150,6 @@ router.get("/housing/:state/:year", (req, res) => {
 // TODO: Verify the pct/X% is an integer
 router.get("/crime/:year/:pct", (req, res) => {
   let { year, pct } = req.params;
-
   pool.query(``, [year, pct], (error, results) => {
     if (error) {
       console.log(error);
