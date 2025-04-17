@@ -10,6 +10,7 @@ import AIInsightsPage from "./pages/AIInsightsPage";
 import About from "./pages/AboutPage";
 import ErrorPage from "./pages/ErrorPage";
 import useMousePositionEffect from "./hooks/useMousePositionEffect";
+import APISpecPage from "./pages/APISpecPage";
 
 function App() {
   const [darkMode] = useState(false); // Use light mode for the new design
@@ -28,6 +29,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/ai-insights" element={<AIInsightsPage />} />
+            <Route path="/api-specs" element={<APISpecPage />} />
             {/* <Route path="/about" element={<About />} /> */}
             {/* 404 Error Page - catches all other routes */}
             <Route path="*" element={<ErrorPage />} />

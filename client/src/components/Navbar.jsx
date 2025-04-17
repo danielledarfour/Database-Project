@@ -67,6 +67,7 @@ const Navbar = () => {
       ]
     },
     { path: '/dashboard', label: 'Data Insights' },
+    { path: '/api-specs', label: 'API Specifications' },
     { 
       path: '/support', 
       label: 'Support',
