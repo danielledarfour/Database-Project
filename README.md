@@ -38,28 +38,25 @@ A comprehensive data visualization platform for exploring the relationship betwe
    ```
 
 4. **Environment setup**
-   
+
    Create a `.env` file in the client directory:
-   ```
+
+   ```bash
    VITE_SERVER_URL=http://localhost:5000
    VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
    ```
-   
-   Create a `.env` file in the server directory:
-   ```
-   PORT=5000
-   DATABASE_URL=your_local_database_url
-   ```
 
 5. **Start development servers**
-   
+
    Start client:
+
    ```bash
    cd client
    npm run dev
    ```
-   
+
    Start server:
+
    ```bash
    cd server
    npm run dev
@@ -87,33 +84,11 @@ A comprehensive data visualization platform for exploring the relationship betwe
 ### Design Philosophy
 
 The UI follows a consistent dark theme optimized for data visualization, with:
+
 - High contrast text for readability
 - Interactive elements with subtle hover effects
 - Consistent spacing and alignment
 - Custom button components with platform-specific styling
-
-## 🚀 Next Steps: AWS PostgreSQL Integration
-
-1. **Update server environment variables**
-   ```
-   DATABASE_URL=postgresql://username:password@aws-postgres-endpoint:5432/database_name
-   ```
-
-2. **Implement database migration scripts**
-   - Create tables for crime data, employment data, and user information
-   - Set up appropriate indexes for query optimization
-
-3. **Add server-side data fetching**
-   - Create API endpoints for filtered data queries
-   - Implement caching for frequently accessed data
-
-4. **Extend the data model**
-   - Implement real-time data synchronization
-   - Add user authentication for personalized dashboards
-
-5. **Performance optimizations**
-   - Implement query pagination for large datasets
-   - Create aggregate views for faster dashboard loading
 
 ## 🤝 Contributions
 
@@ -125,4 +100,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-Built with ❤️ using React, Tailwind CSS, and Node.js 
+Built with ❤️ using React, Tailwind CSS, and Node.js
