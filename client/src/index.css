@@ -188,3 +188,14 @@
     @apply bg-white text-eerie-black;
   }
 }
+
+
+.glow-border-white {
+  -webkit-box-shadow:0px 0px 28px 2px rgba(93,240,196,0.9);
+  -moz-box-shadow: 0px 0px 28px 2px rgba(93,240,196,0.9);
+  box-shadow: 0px 0px 28px 2px rgba(93,240,196,0.9);
+}
+
+.border-tech-stack {
+  border: 0.5px solid rgba(93,240,196,0.9);
+}

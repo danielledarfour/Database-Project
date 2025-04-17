@@ -1,12 +1,21 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import heroVideo from "../assets/hero_video.mp4";
 import Card from "../ui/Card";
-import { 
+import {
   Code,
-  BrainCircuit, Cpu, Database, Sparkles, Layers, BarChart2, MapPin, Cloud, Network
+  BrainCircuit,
+  Cpu,
+  Database,
+  Sparkles,
+  Layers,
+  BarChart2,
+  MapPin,
+  Cloud,
+  Network,
 } from "lucide-react";
+import styled from "styled-components";
 
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -73,14 +82,54 @@ const HeroPage = () => {
   }, []);
 
   const techStack = [
-    { name: 'React', icon: <Code className="h-5 w-5" />, description: 'Interactive UI components', color: 'red' },
-    { name: 'Tailwind CSS', icon: <Layers className="h-5 w-5" />, description: 'Responsive dark theme', color: 'green' },
-    { name: 'Google Maps API', icon: <MapPin className="h-5 w-5" />, description: 'Interactive state mapping', color: 'red' },
-    { name: 'PostgreSQL', icon: <Database className="h-5 w-5" />, description: 'Crime & employment data storage', color: 'green' },
-    { name: 'Node.js', icon: <Cpu className="h-5 w-5" />, description: 'API & data processing', color: 'green' },
-    { name: 'AWS RDS', icon: <Cloud className="h-5 w-5" />, description: 'Database hosting', color: 'red' },
-    { name: 'D3.js', icon: <BarChart2 className="h-5 w-5" />, description: 'Statistical visualizations', color: 'green' },
-    { name: 'OpenAI', icon: <BrainCircuit className="h-5 w-5" />, description: 'Data correlation insights', color: 'red' }
+    {
+      name: "React",
+      icon: <Code className="h-5 w-5" />,
+      description: "Interactive UI components",
+      color: "red",
+    },
+    {
+      name: "Tailwind CSS",
+      icon: <Layers className="h-5 w-5" />,
+      description: "Responsive dark theme",
+      color: "green",
+    },
+    {
+      name: "Google Maps API",
+      icon: <MapPin className="h-5 w-5" />,
+      description: "Interactive state mapping",
+      color: "red",
+    },
+    {
+      name: "PostgreSQL",
+      icon: <Database className="h-5 w-5" />,
+      description: "Crime & employment data storage",
+      color: "green",
+    },
+    {
+      name: "Node.js",
+      icon: <Cpu className="h-5 w-5" />,
+      description: "API & data processing",
+      color: "green",
+    },
+    {
+      name: "AWS RDS",
+      icon: <Cloud className="h-5 w-5" />,
+      description: "Database hosting",
+      color: "red",
+    },
+    {
+      name: "D3.js",
+      icon: <BarChart2 className="h-5 w-5" />,
+      description: "Statistical visualizations",
+      color: "green",
+    },
+    {
+      name: "OpenAI",
+      icon: <BrainCircuit className="h-5 w-5" />,
+      description: "Data correlation insights",
+      color: "red",
+    },
   ];
 
   return (
@@ -138,6 +187,13 @@ const HeroPage = () => {
       {/* Features Section */}
       <div className="bg-white py-16 md:py-24">
         <div className="container-custom mx-auto px-4 md:px-8">
+          <div className="flex justify-center">
+            <div className="inline-flex items-center px-4 py-1 mb-[40px] glow-border-white rounded-full bg-eerie-black text-white text-sm mb-4">
+              <Sparkles className="mr-2 h-4 w-4" />
+              <span>Our Features</span>
+            </div>
+          </div>
+
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-eerie-black mb-4">
               Uncover the link between crime and jobs
@@ -150,7 +206,7 @@ const HeroPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card 
+            <Card
               title="Dynamic data boards"
               content="Visualize data effortlessly to spot trends and connections in crime and employment statistics."
               linkText="See it now →"
@@ -176,8 +232,8 @@ const HeroPage = () => {
                 </svg>
               }
             />
-            
-            <Card 
+
+            <Card
               title="USA Map Analytics"
               content="Explore data through an interactive map of the United States with detailed state-by-state breakdowns."
               linkText="View the map →"
@@ -203,8 +259,8 @@ const HeroPage = () => {
                 </svg>
               }
             />
-            
-            <Card 
+
+            <Card
               title="Advanced search tools"
               content="Quickly find data by state, year, crime type, and job sector to gain valuable insights."
               linkText="Search now →"
@@ -382,68 +438,193 @@ const HeroPage = () => {
 
       {/* Tech Stack Section */}
       <div className="max-w-6xl mx-auto relative mt-[100px] z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center px-4 py-1 mb-[40px] rounded-full bg-mint/20 text-white text-sm mb-4">
-              <Cpu className="mr-2 h-4 w-4" />
-              <span>Advanced Architecture</span>
-            </div>
-            
-            <h2 className="text-3xl font-thin mb-4 text-white tracking-tight">Built with Cutting-Edge Technology</h2>
-            <p className="text-gray-400 font-extralight max-w-2xl mx-auto">
-              Our application leverages the most advanced technologies to create a powerful, responsive, and intelligent financial platform.
-            </p>
-          </motion.div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 mb-[100px] gap-4">
-            {techStack.map((tech, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className={`bg-zinc-900 rounded-xl p-4 border border-zinc-800 hover:border-${tech.color}-500/30 transition-all duration-300 group`}
-                whileHover={{ scale: 1.02, y: -5 }}
-              >
-                <div className={`p-2 w-10 h-10 rounded-full bg-${tech.color}-900/20 mb-3 flex items-center justify-center`}>
-                  {tech.icon}
-                </div>
-                <h3 className="text-lg font-thin text-white mb-1">{tech.name}</h3>
-                <p className="text-gray-500 text-xs">{tech.description}</p>
-                
-                <div className="mt-3 pt-2 border-t border-zinc-800 flex justify-between items-center">
-                  <div className="flex space-x-1">
-                    <motion.div 
-                      className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
-                      animate={{ opacity: [0.3, 1, 0.3] }}
-                      transition={{ duration: 1.5, delay: 0.1, repeat: Infinity }}
-                    />
-                    <motion.div 
-                      className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
-                      animate={{ opacity: [0.3, 1, 0.3] }}
-                      transition={{ duration: 1.5, delay: 0.2, repeat: Infinity }}
-                    />
-                    <motion.div 
-                      className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
-                      animate={{ opacity: [0.3, 1, 0.3] }}
-                      transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }}
-                    />
-                  </div>
-                  
-                  <div className="text-xs text-white group-hover:text-gray-400 transition-colors">
-                    <Network className="h-3 w-3" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center px-4 py-1 mb-[40px] glow-border-white rounded-full bg-white/90 text-eerie-black text-sm mb-4">
+            <Cpu className="mr-2 h-4 w-4" />
+            <span>Our Tech Stack</span>
           </div>
+          
+          <h2 className="text-3xl font-thin mb-4 text-white tracking-tight">
+            Built with Cutting-Edge Technology
+          </h2>
+          <p className="text-white font-extralight max-w-2xl mx-auto">
+            Our application leverages the latest advanced technologies to create
+            a powerful, responsive, and intelligent platform.
+          </p>
+        </motion.div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 mb-[100px] gap-4">
+          {techStack.map((tech, index) => (
+            <TechCard key={index} tech={tech} index={index} />
+          ))}
         </div>
+      </div>
     </>
   );
 };
+
+const TechCard = ({ tech, index }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    
+    setMousePosition({ x, y });
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.5 }}
+      className={`relative overflow-hidden bg-eerie-black rounded-xl p-4 border border-tech-stack hover:border-${tech.color}-500/30 transition-all duration-300 group`}
+      style={{
+        transform: isHovered 
+          ? `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${mousePosition.x * -10}deg) scale3d(1.02, 1.02, 1.02)` 
+          : "perspective(1000px) rotateX(0) rotateY(0)",
+        transition: "transform 0.2s ease"
+      }}
+      whileHover={{ scale: 1.02, y: -5 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMousePosition({ x: 0, y: 0 });
+      }}
+    >
+      {/* Dynamic glow effect */}
+      <div 
+        className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${isHovered ? "opacity-60" : ""}`}
+        style={{
+          background: `radial-gradient(circle at ${(mousePosition.x + 0.5) * 100}% ${(mousePosition.y + 0.5) * 100}%, rgba(${tech.color === 'red' ? '255, 50, 50' : '50, 255, 100'}, 0.3) 0%, transparent 70%)`,
+          transform: isHovered ? "scale(1.2)" : "scale(1)",
+          transition: "transform 0.3s ease-out"
+        }}
+      />
+
+      <div
+        className={`relative z-10 p-2 w-10 h-10 rounded-full bg-${tech.color}-900/20 mb-3 flex items-center justify-center`}
+        style={{
+          transform: isHovered 
+            ? `translateZ(20px) translateX(${mousePosition.x * 10}px) translateY(${mousePosition.y * 10}px)` 
+            : "translateZ(0)",
+          transition: "transform 0.2s ease"
+        }}
+      >
+        {tech.icon}
+      </div>
+      
+      <h3 
+        className={`relative z-10 text-lg font-thin text-white mb-1 transition-colors duration-300 ${isHovered ? `text-${tech.color}-400` : ""}`}
+        style={{
+          transform: isHovered 
+            ? `translateZ(30px) translateX(${mousePosition.x * 5}px) translateY(${mousePosition.y * 5}px)` 
+            : "translateZ(0)",
+          transition: "transform 0.2s ease, text-shadow 0.2s ease",
+          textShadow: isHovered ? `0 0 15px rgba(${tech.color === 'red' ? '255, 50, 50' : '50, 255, 100'}, 0.5)` : "none"
+        }}
+      >
+        {tech.name}
+      </h3>
+      
+      <p 
+        className="relative z-10 text-gray-500 text-xs"
+        style={{
+          transform: isHovered 
+            ? `translateZ(15px) translateX(${mousePosition.x * -3}px) translateY(${mousePosition.y * -3}px)` 
+            : "translateZ(0)",
+          transition: "transform 0.2s ease"
+        }}
+      >
+        {tech.description}
+      </p>
+      
+      <div 
+        className="relative z-10 mt-3 pt-2 border-t border-zinc-800 flex justify-between items-center"
+        style={{
+          transform: isHovered 
+            ? `translateZ(10px)` 
+            : "translateZ(0)",
+          transition: "transform 0.2s ease"
+        }}
+      >
+        <div className="flex space-x-1">
+          <motion.div 
+            className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.5, delay: 0.1, repeat: Infinity }}
+          />
+          <motion.div 
+            className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.5, delay: 0.2, repeat: Infinity }}
+          />
+          <motion.div 
+            className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }}
+          />
+        </div>
+        
+        <div 
+          className={`text-xs transition-colors duration-300 ${isHovered ? `text-${tech.color}-400` : "text-white"} group-hover:text-gray-400`}
+        >
+          <Network className="h-3 w-3" />
+        </div>
+      </div>
+      
+      {/* Animated particles */}
+      {isHovered && (
+        <>
+          <FloatingParticle 
+            className={`bg-${tech.color}-500/20 top-[20%] left-[20%]`}
+            $mx={mousePosition.x}
+            $my={mousePosition.y}
+            $delay="0.1s"
+            $duration="3s"
+          />
+          <FloatingParticle 
+            className={`bg-${tech.color}-500/20 bottom-[30%] right-[20%]`}
+            $mx={mousePosition.x}
+            $my={mousePosition.y}
+            $delay="0.5s"
+            $duration="4s"
+          />
+        </>
+      )}
+    </motion.div>
+  );
+};
+
+const FloatingParticle = styled.div`
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: floatAnim ${props => props.$duration} ease-in-out infinite;
+  animation-delay: ${props => props.$delay};
+  
+  @keyframes floatAnim {
+    0% { transform: translate(0, 0); opacity: 0; }
+    25% { opacity: 1; }
+    75% { opacity: 1; }
+    100% { 
+      transform: translate(${props => props.$mx * 30}px, ${props => props.$my * 30}px); 
+      opacity: 0; 
+    }
+  }
+`;
 
 export default HeroPage;
