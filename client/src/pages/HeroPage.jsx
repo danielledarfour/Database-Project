@@ -516,7 +516,6 @@ const HeroPage = () => {
 
       {/* Tech Stack Section */}
       <div className="max-w-6xl mx-auto relative mt-[100px] z-10">
-        2{" "}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
