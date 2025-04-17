@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Card = ({ title, content, ctaText, month, date, icon }) => {
+const Card2 = ({ title, content, ctaText, month, date, icon }) => {
   return (
     <StyledWrapper>
       <div className="parent">
@@ -142,5 +142,5 @@ const StyledWrapper = styled.div`
     margin-top: 5px;
   }`;
 
-export default Card;
+export default Card2;
 

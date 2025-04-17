@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import heroVideo from "../assets/hero_video.mp4";
 import Card from "../ui/Card";
+import Card2 from "../ui/Card2";
 import {
   Code,
   BrainCircuit,
@@ -14,6 +15,19 @@ import {
   MapPin,
   Cloud,
   Network,
+  AlignLeft,
+  ArrowUpRightFromCircle,
+  ArrowDownAzIcon,
+  LucideArrowDownLeftFromCircle,
+  GitPullRequestCreateArrow,
+  ArrowLeftSquare,
+  ArrowUpFromDotIcon,
+  ArrowUpLeft,
+  SquareArrowUpRightIcon,
+  CircleArrowOutUpRightIcon,
+  ArrowUpRight,
+  ArrowLeftFromLine,
+  ArrowRightFromLine,
 } from "lucide-react";
 import styled from "styled-components";
 
@@ -155,13 +169,13 @@ const HeroPage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   to="/dashboard"
-                  className="bg-mint/40 hover:bg-mint/90 text-white text-base px-8 py-3 rounded-md shadow-sm transition-colors"
+                  className="bg-mint/40  inline-flex items-center hover:bg-mint/90 text-white text-base px-8 py-3 rounded-md shadow-sm transition-colors"
                 >
-                  Gain insights
+                  Gain insights <ArrowUpRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   to="/search"
-                  className="border-2 border-mint/30 bg-transparent hover:bg-mint/10 text-white text-base px-8 py-3 rounded-md transition-colors"
+                  className="border-2 inline-flex items-center  border-mint/30 bg-transparent hover:bg-mint/10 text-white text-base px-8 py-3 rounded-md transition-colors"
                 >
                   Begin your journey
                 </Link>
@@ -287,6 +301,90 @@ const HeroPage = () => {
               }
             />
           </div>
+
+          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card2
+              title="Dynamic data boards"
+              content="Visualize data effortlessly to spot trends and connections in crime and employment statistics."
+              linkText="See it now →"
+              linkTo="/dashboard"
+              month="DATA"
+              date="01"
+              statValue={85}
+              statLabel="% accuracy"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              }
+            />
+
+            <Card2
+              title="USA Map Analytics Page"
+              content="Explore data through an interactive map of the United States with detailed state-by-state breakdowns."
+              linkText="View the map →"
+              linkTo="/map"
+              month="MAP"
+              date="02"
+              statValue={50}
+              statLabel="states"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                  />
+                </svg>
+              }
+            />
+
+            <Card2
+              title="Advanced search tools"
+              content="Quickly find data by state, year, crime type, and job sector to gain valuable insights."
+              linkText="Search now →"
+              linkTo="/search"
+              month="FIND"
+              date="03"
+              statValue={500}
+              statLabel="K rows"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              }
+            />
+          </div>
+           */}
         </div>
       </div>
 
@@ -390,13 +488,13 @@ const HeroPage = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/dashboard"
-                  className="bg-mint hover:bg-mint/90 text-white text-base px-8 py-3 rounded-md shadow-sm transition-colors"
+                  className="bg-eerie-black inline-flex items-center hover:bg-eerie-black/90 text-white text-base px-8 py-3 rounded-md shadow-sm transition-colors"
                 >
-                  Start Now
+                  Start Now <ArrowUpRightFromCircle className="ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   to="/about"
-                  className="border-2 border-mint/30 bg-transparent hover:bg-mint/10 text-eerie-black text-base px-8 py-3 rounded-md transition-colors"
+                  className="border-2 inline-flex items-center border-mint/30 bg-transparent hover:bg-mint/10 text-eerie-black text-base px-8 py-3 rounded-md transition-colors"
                 >
                   Find Out More
                 </Link>
@@ -416,28 +514,9 @@ const HeroPage = () => {
         </div>
       </div>
 
-      {/* Call To Action */}
-      <div className="bg-mint/40 py-16">
-        <div className="container-custom mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-6">
-            Dive into the dynamics of crime and jobs
-          </h2>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
-            Explore how employment trends influence crime rates in your city.
-            Understand the role of wages in shaping crime patterns. Discover
-            stories that drive impactful policy decisions.
-          </p>
-          <Link
-            to="/search"
-            className="bg-mint/40 hover:bg-mint text-white text-base px-10 py-4 rounded-md inline-block shadow-sm transition-colors"
-          >
-            Start exploring
-          </Link>
-        </div>
-      </div>
-
       {/* Tech Stack Section */}
       <div className="max-w-6xl mx-auto relative mt-[100px] z-10">
+        2{" "}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -448,7 +527,7 @@ const HeroPage = () => {
             <Cpu className="mr-2 h-4 w-4" />
             <span>Our Tech Stack</span>
           </div>
-          
+
           <h2 className="text-3xl font-thin mb-4 text-white tracking-tight">
             Built with Cutting-Edge Technology
           </h2>
@@ -457,7 +536,6 @@ const HeroPage = () => {
             a powerful, responsive, and intelligent platform.
           </p>
         </motion.div>
-        
         <div className="grid grid-cols-2 md:grid-cols-4 mb-[100px] gap-4">
           {techStack.map((tech, index) => (
             <TechCard key={index} tech={tech} index={index} />
@@ -475,11 +553,11 @@ const TechCard = ({ tech, index }) => {
 
   const handleMouseMove = (e) => {
     if (!cardRef.current) return;
-    
+
     const rect = cardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    
+
     setMousePosition({ x, y });
   };
 
@@ -491,10 +569,12 @@ const TechCard = ({ tech, index }) => {
       transition={{ delay: index * 0.1, duration: 0.5 }}
       className={`relative overflow-hidden bg-eerie-black rounded-xl p-4 border border-tech-stack hover:border-${tech.color}-500/30 transition-all duration-300 group`}
       style={{
-        transform: isHovered 
-          ? `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${mousePosition.x * -10}deg) scale3d(1.02, 1.02, 1.02)` 
+        transform: isHovered
+          ? `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${
+              mousePosition.x * -10
+            }deg) scale3d(1.02, 1.02, 1.02)`
           : "perspective(1000px) rotateX(0) rotateY(0)",
-        transition: "transform 0.2s ease"
+        transition: "transform 0.2s ease",
       }}
       whileHover={{ scale: 1.02, y: -5 }}
       onMouseEnter={() => setIsHovered(true)}
@@ -505,97 +585,115 @@ const TechCard = ({ tech, index }) => {
       }}
     >
       {/* Dynamic glow effect */}
-      <div 
-        className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${isHovered ? "opacity-60" : ""}`}
+      <div
+        className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${
+          isHovered ? "opacity-60" : ""
+        }`}
         style={{
-          background: `radial-gradient(circle at ${(mousePosition.x + 0.5) * 100}% ${(mousePosition.y + 0.5) * 100}%, rgba(${tech.color === 'red' ? '255, 50, 50' : '50, 255, 100'}, 0.3) 0%, transparent 70%)`,
+          background: `radial-gradient(circle at ${
+            (mousePosition.x + 0.5) * 100
+          }% ${(mousePosition.y + 0.5) * 100}%, rgba(${
+            tech.color === "red" ? "255, 50, 50" : "50, 255, 100"
+          }, 0.3) 0%, transparent 70%)`,
           transform: isHovered ? "scale(1.2)" : "scale(1)",
-          transition: "transform 0.3s ease-out"
+          transition: "transform 0.3s ease-out",
         }}
       />
 
       <div
         className={`relative z-10 p-2 w-10 h-10 rounded-full bg-${tech.color}-900/20 mb-3 flex items-center justify-center`}
         style={{
-          transform: isHovered 
-            ? `translateZ(20px) translateX(${mousePosition.x * 10}px) translateY(${mousePosition.y * 10}px)` 
+          transform: isHovered
+            ? `translateZ(20px) translateX(${
+                mousePosition.x * 10
+              }px) translateY(${mousePosition.y * 10}px)`
             : "translateZ(0)",
-          transition: "transform 0.2s ease"
+          transition: "transform 0.2s ease",
         }}
       >
         {tech.icon}
       </div>
-      
-      <h3 
-        className={`relative z-10 text-lg font-thin text-white mb-1 transition-colors duration-300 ${isHovered ? `text-${tech.color}-400` : ""}`}
+
+      <h3
+        className={`relative z-10 text-lg font-thin text-white mb-1 transition-colors duration-300 ${
+          isHovered ? `text-${tech.color}-400` : ""
+        }`}
         style={{
-          transform: isHovered 
-            ? `translateZ(30px) translateX(${mousePosition.x * 5}px) translateY(${mousePosition.y * 5}px)` 
+          transform: isHovered
+            ? `translateZ(30px) translateX(${
+                mousePosition.x * 5
+              }px) translateY(${mousePosition.y * 5}px)`
             : "translateZ(0)",
           transition: "transform 0.2s ease, text-shadow 0.2s ease",
-          textShadow: isHovered ? `0 0 15px rgba(${tech.color === 'red' ? '255, 50, 50' : '50, 255, 100'}, 0.5)` : "none"
+          textShadow: isHovered
+            ? `0 0 15px rgba(${
+                tech.color === "red" ? "255, 50, 50" : "50, 255, 100"
+              }, 0.5)`
+            : "none",
         }}
       >
         {tech.name}
       </h3>
-      
-      <p 
+
+      <p
         className="relative z-10 text-gray-500 text-xs"
         style={{
-          transform: isHovered 
-            ? `translateZ(15px) translateX(${mousePosition.x * -3}px) translateY(${mousePosition.y * -3}px)` 
+          transform: isHovered
+            ? `translateZ(15px) translateX(${
+                mousePosition.x * -3
+              }px) translateY(${mousePosition.y * -3}px)`
             : "translateZ(0)",
-          transition: "transform 0.2s ease"
+          transition: "transform 0.2s ease",
         }}
       >
         {tech.description}
       </p>
-      
-      <div 
+
+      <div
         className="relative z-10 mt-3 pt-2 border-t border-zinc-800 flex justify-between items-center"
         style={{
-          transform: isHovered 
-            ? `translateZ(10px)` 
-            : "translateZ(0)",
-          transition: "transform 0.2s ease"
+          transform: isHovered ? `translateZ(10px)` : "translateZ(0)",
+          transition: "transform 0.2s ease",
         }}
       >
         <div className="flex space-x-1">
-          <motion.div 
+          <motion.div
             className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
             animate={{ opacity: [0.3, 1, 0.3] }}
             transition={{ duration: 1.5, delay: 0.1, repeat: Infinity }}
           />
-          <motion.div 
+          <motion.div
             className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
             animate={{ opacity: [0.3, 1, 0.3] }}
             transition={{ duration: 1.5, delay: 0.2, repeat: Infinity }}
           />
-          <motion.div 
+          <motion.div
             className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
             animate={{ opacity: [0.3, 1, 0.3] }}
             transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }}
           />
         </div>
-        
-        <div 
-          className={`text-xs transition-colors duration-300 ${isHovered ? `text-${tech.color}-400` : "text-white"} group-hover:text-gray-400`}
+
+        <div
+          className={`text-xs transition-colors duration-300 ${
+            isHovered ? `text-${tech.color}-400` : "text-white"
+          } group-hover:text-gray-400`}
         >
           <Network className="h-3 w-3" />
         </div>
       </div>
-      
+
       {/* Animated particles */}
       {isHovered && (
         <>
-          <FloatingParticle 
+          <FloatingParticle
             className={`bg-${tech.color}-500/20 top-[20%] left-[20%]`}
             $mx={mousePosition.x}
             $my={mousePosition.y}
             $delay="0.1s"
             $duration="3s"
           />
-          <FloatingParticle 
+          <FloatingParticle
             className={`bg-${tech.color}-500/20 bottom-[30%] right-[20%]`}
             $mx={mousePosition.x}
             $my={mousePosition.y}
@@ -613,16 +711,26 @@ const FloatingParticle = styled.div`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  animation: floatAnim ${props => props.$duration} ease-in-out infinite;
-  animation-delay: ${props => props.$delay};
-  
+  animation: floatAnim ${(props) => props.$duration} ease-in-out infinite;
+  animation-delay: ${(props) => props.$delay};
+
   @keyframes floatAnim {
-    0% { transform: translate(0, 0); opacity: 0; }
-    25% { opacity: 1; }
-    75% { opacity: 1; }
-    100% { 
-      transform: translate(${props => props.$mx * 30}px, ${props => props.$my * 30}px); 
-      opacity: 0; 
+    0% {
+      transform: translate(0, 0);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    75% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(
+        ${(props) => props.$mx * 30}px,
+        ${(props) => props.$my * 30}px
+      );
+      opacity: 0;
     }
   }
 `;
