@@ -30,6 +30,7 @@ pool.connect((error) => error && console.log(error));
 const danielle = "./src/assets/danielle.png";
 const sean = "./src/assets/sean.png";
 const christian = "./src/assets/christian.png";
+const rena = "./src/assets/rena.jpg"
 const teamMembers = [
   {
     name: "Christian Ishimwe",
@@ -47,7 +48,7 @@ const teamMembers = [
     name: "Rena Li",
     position: "Backend Support",
     bio: "Develops complex cross-dataset queries",
-    image: "https://randomuser.me/api/portraits/women/68.jpg",
+    image: rena,
   },
   {
     name: "Sean Donovan",
