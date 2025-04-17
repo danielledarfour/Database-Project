@@ -30,6 +30,7 @@ import {
   ArrowRightFromLine,
 } from "lucide-react";
 import styled from "styled-components";
+import { OpenAI } from "@lobehub/icons";
 
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -140,7 +141,7 @@ const HeroPage = () => {
     },
     {
       name: "OpenAI",
-      icon: <BrainCircuit className="h-5 w-5" />,
+      icon: <OpenAI className="h-5 w-5" />,
       description: "Data correlation insights",
       color: "red",
     },
@@ -635,7 +636,7 @@ const TechCard = ({ tech, index }) => {
       </h3>
 
       <p
-        className="relative z-10 text-gray-500 text-xs"
+        className="relative z-10 text-slate=700 text-xs"
         style={{
           transform: isHovered
             ? `translateZ(15px) translateX(${
