@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import HeroPage from './pages/HeroPage'
-import SearchPage from './pages/SearchPage'
-import Dashboard from './pages/Dashboard'
-import MapPage from './pages/MapVisualization'
-import AIInsightsPage from './pages/AIInsightsPage'
-import About from './pages/AboutPage'
-import ErrorPage from './pages/ErrorPage'
-import useMousePositionEffect from './hooks/useMousePositionEffect'
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HeroPage from "./pages/HeroPage";
+import SearchPage from "./pages/SearchPage";
+import Dashboard from "./pages/Dashboard";
+import MapPage from "./pages/MapVisualization";
+import AIInsightsPage from "./pages/AIInsightsPage";
+import About from "./pages/AboutPage";
+import ErrorPage from "./pages/ErrorPage";
+import useMousePositionEffect from "./hooks/useMousePositionEffect";
 
 function App() {
-  const [darkMode] = useState(false) // Use light mode for the new design
+  const [darkMode] = useState(false); // Use light mode for the new design
 
   // Initialize the mouse position effect
-  useMousePositionEffect()
+  useMousePositionEffect();
 
   return (
     <Router>
@@ -36,7 +36,7 @@ function App() {
         <Footer />
       </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
