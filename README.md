@@ -4,7 +4,7 @@ A comprehensive data visualization platform for exploring the relationship betwe
 
 ## LIVE SITE URL
 
-[Investogator Official Site](http://localhost:5173/map)
+[Investogator Official Site](https://databases-five.vercel.app/)
 
 ## ✨ Features
 
