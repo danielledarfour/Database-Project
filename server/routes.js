@@ -160,17 +160,27 @@ router.get("/crime/:year/:pct", (req, res) => {
   });
 });
 
-// ROUTE SIX
-// How have crime incidents changed over the last 5 years in a given state?
+// ROUTE SIX for question 6
+// The Question: How have crime incidents changed over the last 5 years in a given state?
 
 router.get("/crime/:state", (req, res) => {
   let state = req.params;
-  pool.query(``, [state], (error, results) => {
+  pool.query(`
+    SELECT c.Year, SUM(c.Incident) AS TotalIncidents
+    FROM 
+      Crime c JOIN State s ON c.StateID = s.StateID
+    WHERE 
+      s.StateName = $1
+    GROUP BY 
+      c.Year
+    ORDER BY 
+      c.Year
+    `, [state], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
     } else {
-      res.json(results);
+      res.json(results.rows);
     }
   });
 });
