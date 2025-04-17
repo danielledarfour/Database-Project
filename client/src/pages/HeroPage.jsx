@@ -2,6 +2,11 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import heroVideo from "../assets/hero_video.mp4";
+import Card from "../ui/Card";
+import { 
+  Code,
+  BrainCircuit, Cpu, Database, Sparkles, Layers, BarChart2, MapPin, Cloud, Network
+} from "lucide-react";
 
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -67,10 +72,21 @@ const HeroPage = () => {
     fetchTeamMembers();
   }, []);
 
+  const techStack = [
+    { name: 'React', icon: <Code className="h-5 w-5" />, description: 'Interactive UI components', color: 'red' },
+    { name: 'Tailwind CSS', icon: <Layers className="h-5 w-5" />, description: 'Responsive dark theme', color: 'green' },
+    { name: 'Google Maps API', icon: <MapPin className="h-5 w-5" />, description: 'Interactive state mapping', color: 'red' },
+    { name: 'PostgreSQL', icon: <Database className="h-5 w-5" />, description: 'Crime & employment data storage', color: 'green' },
+    { name: 'Node.js', icon: <Cpu className="h-5 w-5" />, description: 'API & data processing', color: 'green' },
+    { name: 'AWS RDS', icon: <Cloud className="h-5 w-5" />, description: 'Database hosting', color: 'red' },
+    { name: 'D3.js', icon: <BarChart2 className="h-5 w-5" />, description: 'Statistical visualizations', color: 'green' },
+    { name: 'OpenAI', icon: <BrainCircuit className="h-5 w-5" />, description: 'Data correlation insights', color: 'red' }
+  ];
+
   return (
     <>
       {/* Hero Section */}
-      <div className="bg-eerie-black relative py-30 md:py-32 mouse-position-border">
+      <div className="bg-eerie-black relative py-30 md:py-32 mb-[83px] mt-[83px] mouse-position-border">
         <div className="container-custom mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
             <motion.div
@@ -82,7 +98,7 @@ const HeroPage = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-6 leading-tight">
                 Uncover the stories behind crime and employment data
               </h1>
-              <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto lg:mx-0">
+              <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto lg:mx-0">
                 Explore how crime rates and employment trends intertwine in U.S.
                 cities. Our platform provides clear insights for policy makers
                 and urban planners.
@@ -134,11 +150,19 @@ const HeroPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-card hover:shadow-lg transition-shadow border border-gray-100 mouse-position-border">
-              <div className="mb-5 text-mint text-3xl">
+            <Card 
+              title="Dynamic data boards"
+              content="Visualize data effortlessly to spot trends and connections in crime and employment statistics."
+              linkText="See it now →"
+              linkTo="/dashboard"
+              month="DATA"
+              date="01"
+              statValue={85}
+              statLabel="% accuracy"
+              icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12"
+                  className="h-8 w-8"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -150,27 +174,22 @@ const HeroPage = () => {
                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   />
                 </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-eerie-black mb-3">
-                Dynamic data boards
-              </h3>
-              <p className="text-eerie-black/70">
-                Visualize data effortlessly to spot trends and connections in
-                crime and employment statistics.
-              </p>
-              <Link
-                to="/dashboard"
-                className="inline-block mt-5 text-mint hover:text-cambridge-blue font-medium transition-colors"
-              >
-                See it now →
-              </Link>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-card hover:shadow-lg transition-shadow border border-gray-100 mouse-position-border">
-              <div className="mb-5 text-mint text-3xl">
+              }
+            />
+            
+            <Card 
+              title="USA Map Analytics"
+              content="Explore data through an interactive map of the United States with detailed state-by-state breakdowns."
+              linkText="View the map →"
+              linkTo="/map"
+              month="MAP"
+              date="02"
+              statValue={50}
+              statLabel="states"
+              icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12"
+                  className="h-8 w-8"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -182,27 +201,22 @@ const HeroPage = () => {
                     d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
                   />
                 </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-eerie-black mb-3">
-                USA Map Analytics
-              </h3>
-              <p className="text-eerie-black/70">
-                Explore data through an interactive map of the United States
-                with detailed state-by-state breakdowns.
-              </p>
-              <Link
-                to="/map"
-                className="inline-block mt-5 text-mint hover:text-cambridge-blue font-medium transition-colors"
-              >
-                View the map →
-              </Link>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-card hover:shadow-lg transition-shadow border border-gray-100 mouse-position-border">
-              <div className="mb-5 text-mint text-3xl">
+              }
+            />
+            
+            <Card 
+              title="Advanced search tools"
+              content="Quickly find data by state, year, crime type, and job sector to gain valuable insights."
+              linkText="Search now →"
+              linkTo="/search"
+              month="FIND"
+              date="03"
+              statValue={500}
+              statLabel="K rows"
+              icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12"
+                  className="h-8 w-8"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -214,21 +228,8 @@ const HeroPage = () => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-eerie-black mb-3">
-                Advanced search tools
-              </h3>
-              <p className="text-eerie-black/70">
-                Quickly find data by state, year, crime type, and job sector to
-                gain valuable insights.
-              </p>
-              <Link
-                to="/search"
-                className="inline-block mt-5 text-mint hover:text-cambridge-blue font-medium transition-colors"
-              >
-                Search now →
-              </Link>
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
@@ -378,6 +379,69 @@ const HeroPage = () => {
           </Link>
         </div>
       </div>
+
+      {/* Tech Stack Section */}
+      <div className="max-w-6xl mx-auto relative mt-[100px] z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center px-4 py-1 mb-[40px] rounded-full bg-mint/20 text-white text-sm mb-4">
+              <Cpu className="mr-2 h-4 w-4" />
+              <span>Advanced Architecture</span>
+            </div>
+            
+            <h2 className="text-3xl font-thin mb-4 text-white tracking-tight">Built with Cutting-Edge Technology</h2>
+            <p className="text-gray-400 font-extralight max-w-2xl mx-auto">
+              Our application leverages the most advanced technologies to create a powerful, responsive, and intelligent financial platform.
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 mb-[100px] gap-4">
+            {techStack.map((tech, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className={`bg-zinc-900 rounded-xl p-4 border border-zinc-800 hover:border-${tech.color}-500/30 transition-all duration-300 group`}
+                whileHover={{ scale: 1.02, y: -5 }}
+              >
+                <div className={`p-2 w-10 h-10 rounded-full bg-${tech.color}-900/20 mb-3 flex items-center justify-center`}>
+                  {tech.icon}
+                </div>
+                <h3 className="text-lg font-thin text-white mb-1">{tech.name}</h3>
+                <p className="text-gray-500 text-xs">{tech.description}</p>
+                
+                <div className="mt-3 pt-2 border-t border-zinc-800 flex justify-between items-center">
+                  <div className="flex space-x-1">
+                    <motion.div 
+                      className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.5, delay: 0.1, repeat: Infinity }}
+                    />
+                    <motion.div 
+                      className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.5, delay: 0.2, repeat: Infinity }}
+                    />
+                    <motion.div 
+                      className={`w-1 h-1 rounded-full bg-${tech.color}-400`}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }}
+                    />
+                  </div>
+                  
+                  <div className="text-xs text-white group-hover:text-gray-400 transition-colors">
+                    <Network className="h-3 w-3" />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
     </>
   );
 };
