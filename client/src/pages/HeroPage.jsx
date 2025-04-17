@@ -150,7 +150,7 @@ const HeroPage = () => {
   return (
     <>
       {/* Hero Section */}
-      <div className="bg-eerie-black relative py-30 md:py-32 mb-[83px] mt-[83px] mouse-position-border">
+      <div className="bg-eerie-black relative py-[82px] md:py-[140px]  mouse-position-border">
         <div className="container-custom mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
             <motion.div
