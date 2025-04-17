@@ -2,6 +2,10 @@
 
 A comprehensive data visualization platform for exploring the relationship between housing, crime rates and employment trends across the United States.
 
+## LIVE SITE URL
+
+[Investogator Official Site](http://localhost:5173/map)
+
 ## ✨ Features
 
 - 🗺️ **Interactive USA Map** - Explore data state-by-state with clickable regions
@@ -20,18 +24,21 @@ A comprehensive data visualization platform for exploring the relationship betwe
 ### Setup Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/crime-employment-visualization.git
    cd crime-employment-visualization
    ```
 
 2. **Install dependencies for client**
+
    ```bash
    cd client
    npm install
    ```
 
 3. **Install dependencies for server**
+
    ```bash
    cd ../server
    npm install
@@ -66,7 +73,7 @@ A comprehensive data visualization platform for exploring the relationship betwe
 
 ### Color Scheme
 
-- **Background**: Eerie Black (#121212) - Primary dark background 
+- **Background**: Eerie Black (#121212) - Primary dark background
 - **Accents**: Hunter Green (#195d30) - Headers and interactive elements
 - **Text**: White (#FFFFFF) - For readability against dark backgrounds
 - **Interactive Elements**: Mint (#10b981) - Buttons, active states
