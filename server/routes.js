@@ -76,6 +76,8 @@ router.get("/", async (req, res) => {
  *  specific data being requested. For example, "/state/California" would
  *  return the state data for California.
  **/
+
+// ROUTE FOR QUESTION 1
 router.get("/crime/:state/:year", (req, res) => {
   let { state, year } = req.params;
   // NOTE: CALLBACK STYLE POOL QUERY DOESN'T NEED ASYNC/AWAIT
@@ -95,6 +97,7 @@ router.get("/crime/:state/:year", (req, res) => {
   );
 });
 
+// ROUTE FOR QUESTION 2
 router.get("/housing/:state/:city/:propertyType", (req, res) => {
   let { state, city, propertyType } = req.params;
   pool.query(
@@ -114,7 +117,7 @@ router.get("/housing/:state/:city/:propertyType", (req, res) => {
   );
 });
 
-// The question:
+// ROUTE FOR QUESTION 3
 // For a selected year, list the top 5 states with the highest total crime incidents, along with:
 // their average job wage, and
 // the total number of homes sold (summed across all cities and property types).
@@ -130,6 +133,7 @@ router.get("/state/:year", (req, res) => {
   });
 });
 
+// ROUTE FOR QUESTION 4
 // For a given state and year, what are the top 5 cities with the highest average crime incidents, and
 // how do their housing prices (median sale price) compare across property types?
 router.get("/housing/:state/:year", (req, res) => {
@@ -200,16 +204,7 @@ router.get("/", (req, res) => {
   });
 });
 
-router.get("/", (req, res) => {
-  pool.query(``, [], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results);
-    }
-  });
-});
+// ROUTE FOR QUESTION 8
 
 router.get("/", (req, res) => {
   pool.query(``, [], (error, results) => {
@@ -222,8 +217,39 @@ router.get("/", (req, res) => {
   });
 });
 
+// ROUTE FOR QUESTION 9
 router.get("/", (req, res) => {
-  pool.query();
+  pool.query(``, [], (error, results) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error: " + error.message });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// ROUTE FOR QUESTION 10
+// The question: For a selected state, what is the total number of crimes per year?
+
+router.get("/", (req, res) => {
+  pool.query(`
+    SELECT c.Year, SUM(c.Incident) AS TotalIncidents
+    FROM  Crime c JOIN State s ON c.StateID = s.StateID
+    WHERE
+      s.StateName = $1
+    GROUP BY
+      c.Year
+    ORDER BY
+      c.Year;
+    `, [state], (error, results) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error: " + error.message});
+    } else {
+      res.json(results.rows)
+    }
+  });
 });
 
 module.exports = router;
