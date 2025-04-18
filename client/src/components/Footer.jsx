@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Button from "../ui/Button";
+import logo from "../assets/logo.png";
 
 const Footer = () => {
   return (
@@ -9,18 +10,13 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center space-x-3 mb-5">
-              <div className="bg-aquamarine w-10 h-10 flex items-center justify-center rounded">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-eerie-black"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 8L12 16M8 12L16 12"></path>
-                </svg>
+              <div className="bg-mint/0 flex items-center justify-center rounded">
+                <circle cx="12" cy="12" r="10"></circle>
+                <img
+                  src={logo}
+                  className="h-[80px] w-[80px]"
+                  alt="Investigator Logo"
+                />
               </div>
               <span className="text-white text-xl font-medium">
                 InvestiGator

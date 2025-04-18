@@ -199,3 +199,13 @@
 .border-tech-stack {
   border: 0.5px solid rgba(93,240,196,0.9);
 }
+
+
+.b-shadow:hover {
+  box-shadow: 10px 7px 10px rgba(43, 255, 0, 0.7); /* soft yellow */
+  transition: box-shadow 0.3s ease;
+}
+
+.b-shadow {
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2); /* smooth dark hover */
+}

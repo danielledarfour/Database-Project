@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import styled from "styled-components";
 import { OpenAI } from "@lobehub/icons";
+import people from "../assets/people.jpg";
 
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -503,11 +504,11 @@ const HeroPage = () => {
             </div>
 
             <div className="lg:col-span-3">
-              <div className="bg-white shadow-card rounded-xl overflow-hidden">
+              <div className="bg-white shadow-card rounded-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80"
+                  src={people}
                   alt="Data analysis dashboard"
-                  className="w-full h-auto"
+                  className="w-full h-auto b-shadow"
                 />
               </div>
             </div>
