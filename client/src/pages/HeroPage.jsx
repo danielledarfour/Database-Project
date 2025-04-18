@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import styled from "styled-components";
 import { OpenAI } from "@lobehub/icons";
-import people from "../assets/People.jpg";
+import people from "../assets/Greenpeople.jpeg";
 
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
