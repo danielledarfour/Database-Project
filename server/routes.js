@@ -27,10 +27,10 @@ pool.connect((error) => error && console.log(error));
 //  for our frontend display
 
 // Team members data
-const danielle = "./src/assets/danielle.png";
+const danielle = "./src/assets/danielle3.jpg";
 const sean = "./src/assets/sean.png";
-const christian = "./src/assets/christian.png";
-const rena = "./src/assets/rena.jpg"
+const christian = "./src/assets/chris.jpg";
+const rena = "./src/assets/rena.jpg";
 const teamMembers = [
   {
     name: "Christian Ishimwe",
@@ -170,7 +170,8 @@ router.get("/crime/:year/:pct", (req, res) => {
 
 router.get("/crime/:state", (req, res) => {
   let state = req.params;
-  pool.query(`
+  pool.query(
+    `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
     FROM 
       Crime c JOIN State s ON c.StateID = s.StateID
@@ -180,14 +181,17 @@ router.get("/crime/:state", (req, res) => {
       c.Year
     ORDER BY 
       c.Year
-    `, [state], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results.rows);
+    `,
+    [state],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 // ROUTE SEVEN
@@ -234,7 +238,8 @@ router.get("/", (req, res) => {
 // The question: For a selected state, what is the total number of crimes per year?
 
 router.get("/", (req, res) => {
-  pool.query(`
+  pool.query(
+    `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
     FROM  Crime c JOIN State s ON c.StateID = s.StateID
     WHERE
@@ -243,14 +248,17 @@ router.get("/", (req, res) => {
       c.Year
     ORDER BY
       c.Year;
-    `, [state], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message});
-    } else {
-      res.json(results.rows)
+    `,
+    [state],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 module.exports = router;

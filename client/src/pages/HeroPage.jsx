@@ -34,9 +34,9 @@ import { OpenAI } from "@lobehub/icons";
 import people from "../assets/Greenpeople.jpeg";
 
 import rena from "../assets/rena.jpg";
-import christian from "../assets/christian.png";
+import christian from "../assets/chris.jpg";
 import sean from "../assets/sean.png";
-import danielle from "../assets/danielle.png";
+import danielle from "../assets/danielle3.jpg";
 
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
