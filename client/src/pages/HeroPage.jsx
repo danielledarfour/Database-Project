@@ -33,6 +33,11 @@ import styled from "styled-components";
 import { OpenAI } from "@lobehub/icons";
 import people from "../assets/Greenpeople.jpeg";
 
+import rena from "../assets/rena.jpg";
+import christian from "../assets/christian.png";
+import sean from "../assets/sean.png";
+import danielle from "../assets/danielle.png";
+
 const HeroPage = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [hoveredMember, setHoveredMember] = useState(null);
@@ -50,25 +55,25 @@ const HeroPage = () => {
           name: "Sean Donovan",
           position: "Head of Frontend",
           bio: "Designs and builds user interfaces for the data dashboard",
-          image: "https://randomuser.me/api/portraits/men/32.jpg",
+          image: sean,
         },
         {
           name: "Christian Ishimwe",
           position: "Backend Support",
           bio: "Develops complex cross-dataset queries",
-          image: "https://randomuser.me/api/portraits/men/68.jpg",
+          image: christian,
         },
         {
           name: "Danielle Darfour",
           position: "Backend Support",
           bio: "Develops complex cross-dataset queries",
-          image: "https://randomuser.me/api/portraits/women/68.jpg",
+          image: danielle,
         },
         {
           name: "Rena Li",
           position: "Backend Support",
           bio: "Develops complex cross-dataset queries",
-          image: "https://randomuser.me/api/portraits/women/68.jpg",
+          image: rena,
         },
       ];
 
