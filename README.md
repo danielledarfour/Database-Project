@@ -4,7 +4,7 @@ A comprehensive data visualization platform for exploring the relationship betwe
 
 ## LIVE SITE URL
 
-[Investigator Official Site](https://databases-five.vercel.app/)
+[Investigator Official Site](https://databases-five.vercel.app/) - Deployed with Vercel
 
 ## ✨ Features
 
