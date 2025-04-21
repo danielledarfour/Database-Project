@@ -119,12 +119,25 @@ router.get("/housing/:state/:city/:propertyType", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 3
-// For a selected year, list the top 5 states with the highest total crime incidents, along with:
-// their average job wage, and
-// the total number of homes sold (summed across all cities and property types).
-router.get("/state/:year", (req, res) => {
+// The question: For each city in a selected state, what is the average sale price and number 
+// of homes sold per property type?
+
+router.get("/state/:state", (req, res) => {
   let year = req.params.year;
-  pool.query(``, [year], (error, results) => {
+  pool.query(`
+    SELECT 
+    h.City,
+    h.PropertyType,
+    ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice,
+    SUM(h.HomesSold) AS TotalHomesSold
+    FROM HousingRecord h
+    JOIN State s ON h.StateID = s.StateID
+      JOIN Job b on s.StateID = b.StateId
+    WHERE s.StateName = $1
+    GROUP BY h.City, h.PropertyType
+    RDER BY TotalHomesSold DESC;
+
+    `, [state], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
