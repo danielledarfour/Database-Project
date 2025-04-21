@@ -198,8 +198,29 @@ router.get("/crime/:state", (req, res) => {
 // The question:
 // For a given city in a given state, how did the average job wage, total crime incidents, and median
 // housing sale price change over a selected range of years?
-router.get("/", (req, res) => {
-  pool.query(``, [], (error, results) => {
+router.get("/housing/affordability", (req, res) => {
+  pool.query(`
+    WITH state_wage AS (
+        SELECT stateid, AVG(annualmeanwage)::numeric AS avg_wage          
+        FROM job
+        GROUP BY stateid
+    ),
+    state_price AS (
+        SELECT stateid,
+            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mediansaleprice)::numeric
+            AS median_price                                   
+        FROM housingRecord
+        GROUP BY stateid
+    )
+    SELECT s.statename,
+    sp.median_price,
+    sw.avg_wage,
+    ROUND(sp.median_price / sw.avg_wage, 2) AS price_to_income_ratio
+    FROM state s
+    JOIN state_price sp USING (stateid)
+    JOIN state_wage sw USING (stateid)
+    ORDER BY price_to_income_ratio;
+    `, [], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
@@ -223,8 +244,22 @@ router.get("/", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 9
-router.get("/", (req, res) => {
-  pool.query(``, [], (error, results) => {
+router.get("/jobs/:state", (req, res) => {
+  const { state } = req.params;
+  pool.query(`
+    SELECT 
+      j.OccupationTitle,
+      j.PctOfTotalEmployment
+    FROM 
+      Job j
+    JOIN 
+      State s ON j.StateID = s.StateID
+    WHERE 
+      s.StateName = $1
+    ORDER BY 
+      j.PctOfTotalEmployment DESC
+    LIMIT 10;
+    `, [state], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
@@ -237,7 +272,7 @@ router.get("/", (req, res) => {
 // ROUTE FOR QUESTION 10
 // The question: For a selected state, what is the total number of crimes per year?
 
-router.get("/", (req, res) => {
+router.get("/crime", (req, res) => {
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
