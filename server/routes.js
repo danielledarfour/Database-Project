@@ -166,14 +166,26 @@ router.get("/housing/:state/:year", (req, res) => {
 // For each occupation, what is the average crime rate in states where that job makes up at least
 // X% of the workforce, for a given year?
 // TODO: Verify the pct/X% is an integer
-router.get("/crime/:year/:pct", (req, res) => {
+router.get("/state/:state/:year/", (req, res) => {
   let { year, pct } = req.params;
-  pool.query(``, [year, pct], (error, results) => {
+  pool.query(`
+    SELECT 
+    j.OccupationTitle,
+    ROUND(AVG(j.AnnualMeanWage), 2) AS AvgWage
+    FROM Job j
+    JOIN State s ON j.StateID = s.StateID
+    JOIN Crime c ON c.StateID = j.StateID
+    JOIN HousingRecord h ON h.StateID = j.StateID
+    WHERE s.StateName = $1
+    AND c.Year = $2
+    GROUP BY j.OccupationTitle
+    ORDER BY AvgWage DESC;
+    `, [year, pct], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
     } else {
-      res.json(results);
+      res.json(results.rows);
     }
   });
 });
