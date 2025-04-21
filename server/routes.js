@@ -77,6 +77,22 @@ router.get("/", async (req, res) => {
  *  specific data being requested. For example, "/state/California" would
  *  return the state data for California.
  **/
+// ROUTE FOR QUESTION 0 (Sanity Check)
+router.get("/crime/:id", (req, res) => {
+  let { id } = req.params;
+  pool.query(
+    `SELECT * FROM Crime WHERE crimeid = $1;`,
+    [id],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
+    }
+  );
+});
 
 // ROUTE FOR QUESTION 1
 router.get("/crime/:state/:year", (req, res) => {
@@ -92,7 +108,7 @@ router.get("/crime/:state/:year", (req, res) => {
         console.log(error);
         res.status(500).json({ message: "Error: " + error.message });
       } else {
-        res.json(results);
+        res.json(results.rows);
       }
     }
   );
@@ -112,24 +128,25 @@ router.get("/housing/:state/:city/:propertyType", (req, res) => {
         console.log(error);
         res.status(500).json({ message: "Error: " + error.message });
       } else {
-        res.json(results);
+        res.json(results.rows);
       }
     }
   );
 });
 
 // ROUTE FOR QUESTION 3
-// The question: For each city in a selected state, what is the average sale price and number 
+// The question: For each city in a selected state, what is the average sale price and number
 // of homes sold per property type?
 
 router.get("/state/:state", (req, res) => {
   let year = req.params.year;
-  pool.query(`
-    SELECT
-      h.City,
-      h.PropertyType,
-      ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice,
-      SUM(h.HomesSold) AS TotalHomesSold
+  pool.query(
+    `
+    SELECT 
+    h.City,
+    h.PropertyType,
+    ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice,
+    SUM(h.HomesSold) AS TotalHomesSold
     FROM HousingRecord h
            JOIN State s ON h.StateID = s.StateID
     WHERE s.StateName = $1
@@ -142,7 +159,7 @@ router.get("/state/:state", (req, res) => {
     } else {
       res.json(results);
     }
-  });
+  );
 });
 
 // ROUTE FOR QUESTION 4
@@ -178,7 +195,7 @@ router.get("/housing/:state/:startYear/:endYear", (req, res) => {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
     } else {
-      res.json(results);
+      res.json(results.rows);
     }
   });
 });
@@ -189,10 +206,11 @@ router.get("/housing/:state/:startYear/:endYear", (req, res) => {
 
 router.get("/state/:state/:year/", (req, res) => {
   let { year, pct } = req.params;
-  pool.query(`
-    SELECT
-      j.OccupationTitle,
-      ROUND(AVG(j.AnnualMeanWage), 2) AS AvgWage
+  pool.query(
+    `
+    SELECT 
+    j.OccupationTitle,
+    ROUND(AVG(j.AnnualMeanWage), 2) AS AvgWage
     FROM Job j
            JOIN State s ON j.StateID = s.StateID
     WHERE s.StateName = $1
@@ -206,21 +224,24 @@ router.get("/state/:state/:year/", (req, res) => {
     )
     GROUP BY j.OccupationTitle
     ORDER BY AvgWage DESC;
-    `, [year, pct], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results.rows);
+    `,
+    [year, pct],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 // ROUTE SIX for question 6
 // The Question: How have crime incidents changed over the last 5 years in a given state?
 
 router.get("/crime/:state", (req, res) => {
-  let state = req.params;
+  let { state } = req.params;
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
@@ -250,7 +271,8 @@ router.get("/crime/:state", (req, res) => {
 // For a given city in a given state, how did the average job wage, total crime incidents, and median
 // housing sale price change over a selected range of years?
 router.get("/housing/affordability", (req, res) => {
-  pool.query(`
+  pool.query(
+    `
     WITH state_wage AS (
         SELECT stateid, AVG(annualmeanwage)::numeric AS avg_wage          
         FROM job
@@ -271,14 +293,17 @@ router.get("/housing/affordability", (req, res) => {
     JOIN state_price sp USING (stateid)
     JOIN state_wage sw USING (stateid)
     ORDER BY price_to_income_ratio;
-    `, [], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results);
+    `,
+    [],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 // ROUTE FOR QUESTION 8 COMPLEX
@@ -288,38 +313,50 @@ router.get("/housing/affordability", (req, res) => {
 // ~54 sec runtime
 
 router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
-  pool.query(`
-    WITH StateAvgWage AS (
-      SELECT StateID, AVG(AvgWage) AS StateAvgWage
-      FROM StateJobStatsAgg
-      GROUP BY StateID
+  pool.query(
+    `
+    WITH Occupations AS (
+      SELECT
+        s.StateID,
+        s.StateName,
+        j.OccupationTitle,
+        SUM(j.PctOfTotalEmployment) AS WorkforcePct,
+        AVG(j.AnnualMeanWage) AS OccupationAvgWage,
+        AVG(j.AnnualMeanWage) -
+        (SELECT AVG(j2.AnnualMeanWage)
+        FROM Job j2
+        WHERE j2.StateID = s.StateID) AS AmountAboveStateAvg
+      FROM State s
+        JOIN Job j ON j.StateID = s.StateID
+      GROUP BY s.StateID, s.StateName, j.OccupationTitle
+      HAVING
+        SUM(j.PctOfTotalEmployment) < $1
+        AND AVG(j.AnnualMeanWage) >
+             (1 + $2 / 100) * (SELECT AVG(j3.AnnualMeanWage)
+                    FROM Job j3
+                    WHERE j3.StateID = s.StateID)
     )
-    SELECT
-      s.StateName,
-      sj.OccupationTitle,
-      sj.WorkforcePct,
-      sj.AvgWage AS OccupationAvgWage,
-      sj.AvgWage - saw.StateAvgWage AS AmountAboveStateAvg
-    FROM State s
-           JOIN StateJobStatsAgg sj ON s.StateID = sj.StateID
-           JOIN StateAvgWage saw ON sj.StateID = saw.StateID
-    WHERE sj.WorkforcePct < $1
-      AND sj.AvgWage > (1 + $2 / 100.0) * saw.StateAvgWage
-    ORDER BY s.StateName, AmountAboveStateAvg DESC;
-  `, [pct-workforce, pct-wage], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results);
+    SELECT *
+    FROM Occupations o
+    ORDER BY o.StateName, o.AmountAboveStateAvg DESC;
+  `,
+    [pct - workforce, pct - wage],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 // ROUTE FOR QUESTION 9
 router.get("/jobs/:state", (req, res) => {
   const { state } = req.params;
-  pool.query(`
+  pool.query(
+    `
     SELECT 
       j.OccupationTitle,
       j.PctOfTotalEmployment
@@ -332,27 +369,42 @@ router.get("/jobs/:state", (req, res) => {
     ORDER BY 
       j.PctOfTotalEmployment DESC
     LIMIT 10;
-    `, [state], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results);
+    `,
+    [state],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 // ROUTE FOR QUESTION 10
-// The question: What are the top 20 most expensive cities
-// for Single‑Family Residential in a given state?
-router.get("/housing/:state", (req, res) => {
-  const { state } = req.params;
-  pool.query(``, [], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results);
+// The question: For a selected state, what is the total number of crimes per year?
+
+router.get("/crime/:state", (req, res) => {
+  pool.query(
+    `
+    SELECT c.Year, SUM(c.Incident) AS TotalIncidents
+    FROM  Crime c JOIN State s ON c.StateID = s.StateID
+    WHERE
+      s.StateName = $1
+    GROUP BY
+      c.Year
+    ORDER BY
+      c.Year;
+    `,
+    [state],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
   });
 });
