@@ -83,8 +83,8 @@ router.get("/crime/:state/:year", (req, res) => {
   let { state, year } = req.params;
   // NOTE: CALLBACK STYLE POOL QUERY DOESN'T NEED ASYNC/AWAIT
   pool.query(
-    `SELECT c.City, SUM(c.Incident) AS TotalIncidents FROM Crime c JOIN
-     State s ON c.StateID = s.StateID WHERE s.StateName = $1 AND 
+    `SELECT c.City, SUM(c.Incident) AS TotalIncidents 
+    FROM Crime c JOIN State s ON c.StateID = s.StateID WHERE s.StateName = $1 AND 
      c.Year = $2 GROUP BY c.City ORDER BY TotalIncidents DESC LIMIT 5;`,
     [state, year],
     (error, results) => {
@@ -243,10 +243,39 @@ router.get("/housing/affordability", (req, res) => {
   });
 });
 
-// ROUTE FOR QUESTION 8
+// ROUTE FOR QUESTION 8 COMPLEX
+// The question:
+// For every state, which occupation titles have a combined share of the workforce
+// under X%, and average wage more than Y% above the state’s overall average wage?
+// ~54 sec runtime
 
-router.get("/", (req, res) => {
-  pool.query(``, [], (error, results) => {
+router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
+  pool.query(`
+    WITH Occupations AS (
+      SELECT
+        s.StateID,
+        s.StateName,
+        j.OccupationTitle,
+        SUM(j.PctOfTotalEmployment) AS WorkforcePct,
+        AVG(j.AnnualMeanWage) AS OccupationAvgWage,
+        AVG(j.AnnualMeanWage) -
+        (SELECT AVG(j2.AnnualMeanWage)
+        FROM Job j2
+        WHERE j2.StateID = s.StateID) AS AmountAboveStateAvg
+      FROM State s
+        JOIN Job j ON j.StateID = s.StateID
+      GROUP BY s.StateID, s.StateName, j.OccupationTitle
+      HAVING
+        SUM(j.PctOfTotalEmployment) < $1
+        AND AVG(j.AnnualMeanWage) >
+             (1 + $2 / 100) * (SELECT AVG(j3.AnnualMeanWage)
+                    FROM Job j3
+                    WHERE j3.StateID = s.StateID)
+    )
+    SELECT *
+    FROM Occupations o
+    ORDER BY o.StateName, o.AmountAboveStateAvg DESC;
+  `, [pct-workforce, pct-wage], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
@@ -285,9 +314,14 @@ router.get("/jobs/:state", (req, res) => {
 // ROUTE FOR QUESTION 10
 // The question: For a selected state, what is the total number of crimes per year?
 
+<<<<<<< HEAD
 router.get("/crime", (req, res) => {
   pool.query(
     `
+=======
+router.get("/crime/:state", (req, res) => {
+  pool.query(`
+>>>>>>> 115d770 (Add route 8)
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
     FROM  Crime c JOIN State s ON c.StateID = s.StateID
     WHERE
