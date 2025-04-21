@@ -163,9 +163,9 @@ router.get("/housing/:state/:year", (req, res) => {
 });
 
 // ROUTE FIVE
-// For each occupation, what is the average crime rate in states where that job makes up at least
-// X% of the workforce, for a given year?
-// TODO: Verify the pct/X% is an integer
+// Given a state and a year, what are the average wages for each occupation in that state considering 
+// that the state has both the housing and crime data for such a year.
+
 router.get("/state/:state/:year/", (req, res) => {
   let { year, pct } = req.params;
   pool.query(`
