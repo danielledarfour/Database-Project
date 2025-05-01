@@ -1,8 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-const Input = () => {
+const Input = ({ onChange }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    if (onChange) {
+      onChange(value);
+    }
+  };
 
   return (
     <StyledWrapper $isFocused={isFocused}>
@@ -21,6 +30,8 @@ const Input = () => {
               name="text"
               type="text"
               placeholder="Search..."
+              value={inputValue}
+              onChange={handleInputChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
             />
@@ -83,7 +94,7 @@ const Input = () => {
   );
 };
 
-const StyledWrapper = styled.div`
+/*
   .grid {
     height: 800px;
     width: 800px;
@@ -99,6 +110,10 @@ const StyledWrapper = styled.div`
     z-index: -1;
     filter: blur(1px);
   }
+*/
+
+const StyledWrapper = styled.div`
+
 
   .white,
   .border,

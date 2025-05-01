@@ -95,12 +95,15 @@ router.get("/crime/:id", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 1
+// Get the top 5 cities with the highest total crime incidents for a given state and year
 router.get("/crime/:state/:year", (req, res) => {
   let { state, year } = req.params;
   // NOTE: CALLBACK STYLE POOL QUERY DOESN'T NEED ASYNC/AWAIT
+  // ensure state is camel case
+  state = state.charAt(0).toUpperCase() + state.slice(1);
   pool.query(
-    `SELECT c.City, SUM(c.Incident) AS TotalIncidents 
-    FROM Crime c JOIN State s ON c.StateID = s.StateID WHERE s.StateName = $1 AND 
+    `SELECT c.city, SUM(c.Incident) AS TotalIncidents FROM Crime c
+    JOIN State s ON c.StateID = s.StateID WHERE s.StateName = $1 AND
      c.Year = $2 GROUP BY c.City ORDER BY TotalIncidents DESC LIMIT 5;`,
     [state, year],
     (error, results) => {
@@ -115,6 +118,8 @@ router.get("/crime/:state/:year", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 2
+// For a given state, city, and property type, what is the median sale price, median list price, and the price difference
+// between the median list price and the median sale price?
 router.get("/housing/:state/:city/:propertyType", (req, res) => {
   let { state, city, propertyType } = req.params;
   pool.query(
@@ -241,14 +246,16 @@ router.get("/state/:state/:year/", (req, res) => {
 // The Question: How have crime incidents changed over the last 5 years in a given state?
 
 router.get("/crime/:state", (req, res) => {
+  console.log('Request received');
   let { state } = req.params;
+  console.log('State:', state, 'Type:', typeof state);
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
     FROM 
       Crime c JOIN State s ON c.StateID = s.StateID
     WHERE 
-      s.StateName = $1
+      s.stateName = $1
     GROUP BY 
       c.Year
     ORDER BY 
