@@ -152,7 +152,27 @@ router.get("/state/:state", (req, res) => {
 // how do their housing prices (median sale price) compare across property types?
 router.get("/housing/:state/:year", (req, res) => {
   let { state, year } = req.params;
-  pool.query(``, [state, year], (error, results) => {
+  pool.query(`
+  SELECT
+    c.City,
+    h.PropertyType,
+    ROUND(AVG(c.Incident), 2) AS AvgIncidents,
+    ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice
+    FROM
+        Crime c
+    JOIN
+        State s ON c.StateID = s.StateID
+    JOIN
+        HousingRecord h ON h.City = c.City AND h.StateID = c.StateID
+    WHERE
+        s.StateName = $1
+        AND c.Year = $2
+    GROUP BY
+        c.City, h.PropertyType
+    ORDER BY
+        AvgIncidents DESC
+    LIMIT 5;
+    `, [state, year], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
