@@ -144,7 +144,7 @@ router.get("/housing/:state/:city/:propertyType", (req, res) => {
 // of homes sold per property type?
 
 router.get("/state/:state", (req, res) => {
-  let year = req.params.year;
+  let { state } = req.params;
   pool.query(
     `
     SELECT 
@@ -157,12 +157,15 @@ router.get("/state/:state", (req, res) => {
     WHERE s.StateName = $1
     GROUP BY h.City, h.PropertyType
     ORDER BY TotalHomesSold DESC;
-    `, [state], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results);
+    `,
+    [state],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
   );
 });
@@ -244,11 +247,13 @@ router.get("/state/:state/:year/", (req, res) => {
 
 // ROUTE SIX for question 6
 // The Question: How have crime incidents changed over the last 5 years in a given state?
-
+// [WORKS]
 router.get("/crime/:state", (req, res) => {
-  console.log('Request received');
   let { state } = req.params;
-  console.log('State:', state, 'Type:', typeof state);
+
+  // ensure state is camel case
+  state = state.charAt(0).toUpperCase() + state.slice(1);
+  console.log("State:", state, "Type:", typeof state);
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
@@ -276,7 +281,7 @@ router.get("/crime/:state", (req, res) => {
 // ROUTE SEVEN
 // The question:
 // For a given city in a given state, how did the average job wage, total crime incidents, and median
-// housing sale price change over a selected range of years?
+// housing sale price change over a selected range of years? [WORKS]
 router.get("/housing/affordability", (req, res) => {
   pool.query(
     `
@@ -393,6 +398,7 @@ router.get("/jobs/:state", (req, res) => {
 // The question: For a selected state, what is the total number of crimes per year?
 
 router.get("/crime/:state", (req, res) => {
+  const { state } = req.params;
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
@@ -413,7 +419,7 @@ router.get("/crime/:state", (req, res) => {
         res.json(results.rows);
       }
     }
-  });
+  );
 });
 
 module.exports = router;
