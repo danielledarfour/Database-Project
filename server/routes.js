@@ -125,18 +125,16 @@ router.get("/housing/:state/:city/:propertyType", (req, res) => {
 router.get("/state/:state", (req, res) => {
   let year = req.params.year;
   pool.query(`
-    SELECT 
-    h.City,
-    h.PropertyType,
-    ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice,
-    SUM(h.HomesSold) AS TotalHomesSold
+    SELECT
+      h.City,
+      h.PropertyType,
+      ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice,
+      SUM(h.HomesSold) AS TotalHomesSold
     FROM HousingRecord h
-    JOIN State s ON h.StateID = s.StateID
-      JOIN Job b on s.StateID = b.StateId
+           JOIN State s ON h.StateID = s.StateID
     WHERE s.StateName = $1
     GROUP BY h.City, h.PropertyType
-    RDER BY TotalHomesSold DESC;
-
+    ORDER BY TotalHomesSold DESC;
     `, [state], (error, results) => {
     if (error) {
       console.log(error);
@@ -148,31 +146,34 @@ router.get("/state/:state", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 4
-// For a given state and year, what are the top 5 cities with the highest average crime incidents, and
-// how do their housing prices (median sale price) compare across property types?
-router.get("/housing/:state/:year", (req, res) => {
-  let { state, year } = req.params;
+// Across all cities in a given state and year range, what are the average crime incidents,
+// housing prices, and employment levels grouped by both city and industry?
+router.get("/housing/:state/:startYear/:endYear", (req, res) => {
+  let { state, startYear, endYear } = req.params;
   pool.query(`
-  SELECT
-    c.City,
-    h.PropertyType,
-    ROUND(AVG(c.Incident), 2) AS AvgIncidents,
-    ROUND(AVG(h.MedianSalePrice), 2) AS AvgSalePrice
-    FROM
-        Crime c
-    JOIN
-        State s ON c.StateID = s.StateID
-    JOIN
-        HousingRecord h ON h.City = c.City AND h.StateID = c.StateID
-    WHERE
+    WITH FilteredAgg AS (
+      SELECT
+        agg.City,
+        s.StateName,
+        agg.StateID,
+        sj.OccupationTitle,
+        AVG(agg.AvgIncidents) AS AvgIncidents,
+        AVG(agg.AvgSalePrice) AS AvgSalePrice,
+        sj.AvgWage AS AvgEmployment,
+        MAX(agg.NumPropertyTypes) AS NumPropertyTypes
+      FROM
+        CrimeHousingCityAgg agg
+          JOIN State s ON agg.StateID = s.StateID
+          JOIN StateJobStatsAgg sj ON sj.StateID = s.StateID
+      WHERE
         s.StateName = $1
-        AND c.Year = $2
-    GROUP BY
-        c.City, h.PropertyType
-    ORDER BY
-        AvgIncidents DESC
-    LIMIT 5;
-    `, [state, year], (error, results) => {
+        AND agg.Year BETWEEN $2 AND $3
+      GROUP BY agg.City, s.StateName, agg.StateID, sj.OccupationTitle, sj.AvgWage
+    )
+    SELECT *
+    FROM FilteredAgg
+    ORDER BY AvgIncidents DESC, AvgEmployment;
+    `, [state, startYear, endYear], (error, results) => {
     if (error) {
       console.log(error);
       res.status(500).json({ message: "Error: " + error.message });
@@ -182,22 +183,27 @@ router.get("/housing/:state/:year", (req, res) => {
   });
 });
 
-// ROUTE FIVE
+// ROUTE FOR QUESTION FIVE
 // Given a state and a year, what are the average wages for each occupation in that state considering 
 // that the state has both the housing and crime data for such a year.
 
 router.get("/state/:state/:year/", (req, res) => {
   let { year, pct } = req.params;
   pool.query(`
-    SELECT 
-    j.OccupationTitle,
-    ROUND(AVG(j.AnnualMeanWage), 2) AS AvgWage
+    SELECT
+      j.OccupationTitle,
+      ROUND(AVG(j.AnnualMeanWage), 2) AS AvgWage
     FROM Job j
-    JOIN State s ON j.StateID = s.StateID
-    JOIN Crime c ON c.StateID = j.StateID
-    JOIN HousingRecord h ON h.StateID = j.StateID
+           JOIN State s ON j.StateID = s.StateID
     WHERE s.StateName = $1
-    AND c.Year = $2
+      AND EXISTS (
+      SELECT 1 FROM Crime c
+      WHERE c.StateID = j.StateID AND c.Year = $2
+    )
+      AND EXISTS (
+      SELECT 1 FROM HousingRecord h
+      WHERE h.StateID = j.StateID
+    )
     GROUP BY j.OccupationTitle
     ORDER BY AvgWage DESC;
     `, [year, pct], (error, results) => {
@@ -283,30 +289,23 @@ router.get("/housing/affordability", (req, res) => {
 
 router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
   pool.query(`
-    WITH Occupations AS (
-      SELECT
-        s.StateID,
-        s.StateName,
-        j.OccupationTitle,
-        SUM(j.PctOfTotalEmployment) AS WorkforcePct,
-        AVG(j.AnnualMeanWage) AS OccupationAvgWage,
-        AVG(j.AnnualMeanWage) -
-        (SELECT AVG(j2.AnnualMeanWage)
-        FROM Job j2
-        WHERE j2.StateID = s.StateID) AS AmountAboveStateAvg
-      FROM State s
-        JOIN Job j ON j.StateID = s.StateID
-      GROUP BY s.StateID, s.StateName, j.OccupationTitle
-      HAVING
-        SUM(j.PctOfTotalEmployment) < $1
-        AND AVG(j.AnnualMeanWage) >
-             (1 + $2 / 100) * (SELECT AVG(j3.AnnualMeanWage)
-                    FROM Job j3
-                    WHERE j3.StateID = s.StateID)
+    WITH StateAvgWage AS (
+      SELECT StateID, AVG(AvgWage) AS StateAvgWage
+      FROM StateJobStatsAgg
+      GROUP BY StateID
     )
-    SELECT *
-    FROM Occupations o
-    ORDER BY o.StateName, o.AmountAboveStateAvg DESC;
+    SELECT
+      s.StateName,
+      sj.OccupationTitle,
+      sj.WorkforcePct,
+      sj.AvgWage AS OccupationAvgWage,
+      sj.AvgWage - saw.StateAvgWage AS AmountAboveStateAvg
+    FROM State s
+           JOIN StateJobStatsAgg sj ON s.StateID = sj.StateID
+           JOIN StateAvgWage saw ON sj.StateID = saw.StateID
+    WHERE sj.WorkforcePct < $1
+      AND sj.AvgWage > (1 + $2 / 100.0) * saw.StateAvgWage
+    ORDER BY s.StateName, AmountAboveStateAvg DESC;
   `, [pct-workforce, pct-wage], (error, results) => {
     if (error) {
       console.log(error);
@@ -344,35 +343,18 @@ router.get("/jobs/:state", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 10
-// The question: For a selected state, what is the total number of crimes per year?
-
-<<<<<<< HEAD
-router.get("/crime", (req, res) => {
-  pool.query(
-    `
-=======
-router.get("/crime/:state", (req, res) => {
-  pool.query(`
->>>>>>> 115d770 (Add route 8)
-    SELECT c.Year, SUM(c.Incident) AS TotalIncidents
-    FROM  Crime c JOIN State s ON c.StateID = s.StateID
-    WHERE
-      s.StateName = $1
-    GROUP BY
-      c.Year
-    ORDER BY
-      c.Year;
-    `,
-    [state],
-    (error, results) => {
-      if (error) {
-        console.log(error);
-        res.status(500).json({ message: "Error: " + error.message });
-      } else {
-        res.json(results.rows);
-      }
+// The question: What are the top 20 most expensive cities
+// for Single‑Family Residential in a given state?
+router.get("/housing/:state", (req, res) => {
+  const { state } = req.params;
+  pool.query(``, [], (error, results) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error: " + error.message });
+    } else {
+      res.json(results);
     }
-  );
+  });
 });
 
 module.exports = router;
