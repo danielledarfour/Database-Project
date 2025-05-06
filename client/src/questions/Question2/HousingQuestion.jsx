@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bar } from 'react-chartjs-2';
 import axios from "axios";
 import Input from "../../ui/Input";
@@ -32,6 +32,8 @@ const nearbyStates = {
 const HousingQuestion = ({ showMap, setShowMap }) => {
   // Search filters
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedPropertyType, setSelectedPropertyType] = useState("");
@@ -42,6 +44,22 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Filter states based on search query
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = usStates
+        .filter((state) => 
+          state.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .slice(0, 5); // Limit to 5 results
+      setFilteredStates(filtered);
+      setShowSearchResults(filtered.length > 0);
+    } else {
+      setFilteredStates([]);
+      setShowSearchResults(false);
+    }
+  }, [searchQuery]);
+
   // Fetch cities when state changes using our cityData utility
   useEffect(() => {
     if (selectedState && cityData[selectedState]) {
@@ -50,6 +68,23 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
       setAvailableCities([]);
     }
   }, [selectedState]);
+
+  // Handle state selection from search results
+  const handleStateSelect = (state) => {
+    setSelectedState(state.name);
+    setSearchQuery(state.name);
+    setShowSearchResults(false);
+    setSelectedCity(""); // Reset city when state changes
+  };
+
+  // Handle custom search
+  const handleInputChange = (value) => {
+    setSearchQuery(value);
+    if (!value) {
+      setSelectedState("");
+      setAvailableCities([]);
+    }
+  };
 
   // Handle search
   const handleSearch = async (e) => {
@@ -73,12 +108,6 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
       setSearchResults([]);
       setIsLoading(false);
     }
-  };
-
-  // Handle custom search
-  const handleCustomSearch = (value) => {
-    setSearchQuery(value);
-    // Additional filtering logic could be added here
   };
 
   // Prepare chart data when search results are available
@@ -198,44 +227,50 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
     <>
       {/* Housing Search Form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
-        {/* Custom Search Input */}
-        <div className="lg:col-span-5">
+        {/* State Search Input */}
+        <div className="lg:col-span-5 relative">
           <label className="block text-sm font-medium text-white mb-1">
-            Search Locations
+            Select State
           </label>
           <Input 
-            onChange={handleCustomSearch} 
+            onChange={handleInputChange} 
             hideGrid={true}
             className="bg-transparent border-mint/50 focus:border-mint"
             overrideStyles={true}
           />
-        </div>
-
-        {/* State Selection */}
-        <div className="lg:col-span-2">
-          <label className="block text-sm font-medium text-white mb-1">
-            Select State
-          </label>
-          <select
-            value={selectedState}
-            onChange={(e) => {
-              setSelectedState(e.target.value);
-              setSelectedCity(""); // Reset city when state changes
-            }}
-            className="w-full p-2 rounded-md bg-eerie-black text-white border border-mint focus:outline-none focus:ring-2 focus:ring-mint"
-            required
-          >
-            <option value="">Select a state</option>
-            {usStates.map((state) => (
-              <option key={state.id} value={state.name}>
-                {state.name}
-              </option>
-            ))}
-          </select>
+          
+          {/* State Search Results Dropdown */}
+          <AnimatePresence>
+            {showSearchResults && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute z-50 w-full bg-eerie-black border border-mint/30 rounded-md shadow-lg mt-1"
+              >
+                <ul>
+                  {filteredStates.map((state) => (
+                    <li 
+                      key={state.id}
+                      className="px-4 py-2.5 hover:bg-mint/10 cursor-pointer border-b border-mint/20 flex items-center"
+                      onClick={() => handleStateSelect(state)}
+                    >
+                      <div className="text-mint mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <span className="text-white">{state.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* City Selection */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <label className="block text-sm font-medium text-white mb-1">
             Select City
           </label>
@@ -256,7 +291,7 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
         </div>
 
         {/* Property Type Selection */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <label className="block text-sm font-medium text-white mb-1">
             Property Type
           </label>

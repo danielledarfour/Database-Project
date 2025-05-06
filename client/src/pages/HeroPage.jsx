@@ -1,6 +1,6 @@
+import React, { useState, useEffect, Suspense, lazy, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion, useMotionValue, useTransform, animate, useInView } from "framer-motion";
 import Card from "../ui/Card";
 import Card2 from "../ui/Card2";
 import {
@@ -534,13 +534,20 @@ const HeroPage = () => {
                       >
                         <p className="text-green-700 text-sm uppercase tracking-wider mb-1 font-extralight">Search Speed</p>
                         <motion.div
-                          className="text-eerie-black text-3xl font-bold"
+                          className="text-3xl font-bold"
                           initial={{ opacity: 0, scale: 0.8 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
                           transition={{ delay: 0.5, type: "spring" }}
                         >
-                          15 ms
+                          <CountdownNumber 
+                            start={10000} 
+                            end={15} 
+                            duration={3.0} 
+                            suffix=" ms" 
+                            thresholds={{ 200: "text-green-700" }}
+                            initialColor="text-red-500"
+                          />
                         </motion.div>
                         <span className="text-eerie-black/50 text-sm font-thin">Optimized for speed</span>
                       </motion.div>
@@ -1153,5 +1160,60 @@ const FloatingParticle = styled.div`
     }
   }
 `;
+
+const CountdownNumber = ({ start, end, duration, suffix = "", thresholds = {}, initialColor = "" }) => {
+  const countRef = useRef(useMotionValue(start));
+  const [textColor, setTextColor] = useState(initialColor);
+  const elementRef = useRef(null);
+  const isInView = useInView(elementRef, { once: true, amount: 0.5 });
+  
+  // Format the number with suffix
+  const formattedNumber = useTransform(countRef.current, (latest) => {
+    return `${Math.floor(latest)}${suffix}`;
+  });
+  
+  useEffect(() => {
+    // Only start animation when in view
+    if (!isInView) return;
+    
+    // Check if we should change color based on thresholds
+    const updateColor = (latest) => {
+      const currentCount = Math.floor(latest);
+      const thresholdKeys = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
+      
+      for (const threshold of thresholdKeys) {
+        if (currentCount <= threshold) {
+          setTextColor(thresholds[threshold]);
+          break;
+        }
+      }
+    };
+    
+    // Add event listener to monitor value changes
+    const unsubscribe = countRef.current.on("change", updateColor);
+    
+    // Start the animation
+    const controls = animate(countRef.current, end, {
+      duration: duration,
+      ease: "easeOut",
+      onComplete: () => {
+        // Ensure we set final color
+        updateColor(end);
+      }
+    });
+    
+    // Cleanup
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+  }, [isInView, start, end, duration, thresholds]);
+  
+  return (
+    <motion.span ref={elementRef} className={textColor}>
+      {formattedNumber}
+    </motion.span>
+  );
+};
 
 export default HeroPage;

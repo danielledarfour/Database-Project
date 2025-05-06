@@ -95,6 +95,10 @@ router.get("/crime/:id", (req, res) => {
   );
 });
 
+function capitalizeWords(str) {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+
 // ROUTE FOR QUESTION 1
 // Get the top 5 cities with the highest total crime incidents for a given state and year
 router.get("/crime/:state/:year", (req, res) => {
@@ -253,7 +257,6 @@ router.get("/five-years/:state", (req, res) => {
 
   // ensure state is camel case
   state = state.charAt(0).toUpperCase() + state.slice(1);
-  console.log("State:", state, "Type:", typeof state);
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
@@ -452,4 +455,5 @@ router.get("/housing/:state", (req, res) => {
     }
   );
 })
+
 module.exports = router;
