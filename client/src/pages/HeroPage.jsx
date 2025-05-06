@@ -37,9 +37,9 @@ import christian from "../assets/chris.jpg";
 import sean from "../assets/sean.png";
 import danielle from "../assets/danielle3.jpg";
 
-import video1 from "../assets/videoOne.gif";
-import video2 from "../assets/videoTwo.gif";
-import video3 from "../assets/videoThree.gif";
+import video1 from "../assets/VideoOne.gif";
+import video2 from "../assets/VideoTwo.gif";
+import video3 from "../assets/VideoThree.gif";
 import heroImage from "../assets/heropage.png";
 
 const StyledWrapper = styled.div`
