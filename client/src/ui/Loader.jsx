@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+// let it take an optional message prop
 const Loader = () => {
   return (
     <StyledWrapper>
@@ -18,7 +19,7 @@ const Loader = () => {
           <circle r={14} cy={17} cx={17} className="back" />
           <circle r={14} cy={17} cx={17} className="front" />
         </svg>
-        <div data-text="Loading" className="text" />
+        <div data-text="loading..." className="text" />
       </div>
     </StyledWrapper>
   );
@@ -32,6 +33,10 @@ const StyledWrapper = styled.div`
   width: 100%;
   background-color: transparent; /* eerie-black */
   
+  #display-type {
+    flex-direction: row;
+  }
+
   #wifi-loader {
     --background: #121212;
     --front-color: #10b981; /* Mint */

@@ -1,12 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import styled from "styled-components";
 import logo from "../assets/logo.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const location = useLocation();
   const dropdownRef = useRef(null);
+
+  // Toast notification handler
+  const showNotification = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -79,6 +93,18 @@ const Navbar = () => {
           label: "Common Questions",
           description: "Find answers to frequently asked questions",
         },
+        {
+          label: "Settings",
+          description: "Customize your experience",
+          hasSettings: true,
+          settings: [
+            {
+              id: "disableHyperSpeed",
+              label: "Skip HyperSpeed Animation",
+              description: "Disable the hyperspeed animation when loading search page"
+            }
+          ]
+        },
       ],
     },
   ];
@@ -89,7 +115,6 @@ const Navbar = () => {
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3">
             <div className="bg-mint/0 flex items-center justify-center rounded">
-              <circle cx="12" cy="12" r="10"></circle>
               <img
                 src={logo}
                 className="h-[50px] w-[50px]"
@@ -275,19 +300,38 @@ const Navbar = () => {
                             <div className="absolute z-10 right-0 mt-2 w-64 bg-eerie-black rounded-md shadow-card overflow-hidden mouse-position-border">
                               <div className="py-2">
                                 {link.dropdownItems.map((item, idx) => (
-                                  <Link
-                                    key={idx}
-                                    to="#"
-                                    className="block px-4 py-3 hover:bg-cambridge-blue/20 transition-colors"
-                                    onClick={() => setOpenDropdown(null)}
-                                  >
-                                    <span className="block text-sm font-medium text-white">
-                                      {item.label}
-                                    </span>
-                                    <span className="block text-xs text-gray-400 mt-0.5">
-                                      {item.description}
-                                    </span>
-                                  </Link>
+                                  item.hasSettings ? (
+                                    <div key={idx} className="block px-4 py-3">
+                                      <span className="block text-sm font-medium text-white mb-1">
+                                        {item.label}
+                                      </span>
+                                      <span className="block text-xs text-gray-400 mb-3">
+                                        {item.description}
+                                      </span>
+                                      <div className="space-y-3 mt-2">
+                                        {item.settings.map((setting) => (
+                                          <SettingToggle 
+                                            key={setting.id} 
+                                            setting={setting} 
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <Link
+                                      key={idx}
+                                      to="#"
+                                      className="block px-4 py-3 hover:bg-cambridge-blue/20 transition-colors"
+                                      onClick={() => setOpenDropdown(null)}
+                                    >
+                                      <span className="block text-sm font-medium text-white">
+                                        {item.label}
+                                      </span>
+                                      <span className="block text-xs text-gray-400 mt-0.5">
+                                        {item.description}
+                                      </span>
+                                    </Link>
+                                  )
                                 ))}
                               </div>
                             </div>
@@ -383,17 +427,33 @@ const Navbar = () => {
                       {openDropdown === link.label && (
                         <div className="pl-4 pt-2 pb-1 space-y-1">
                           {link.dropdownItems.map((item, idx) => (
-                            <Link
-                              key={idx}
-                              to={item.path || "#"}
-                              className="block py-2 px-1 text-sm text-gray-400 hover:text-mint"
-                              onClick={() => {
-                                setOpenDropdown(null);
-                                setIsMenuOpen(false);
-                              }}
-                            >
-                              {item.label}
-                            </Link>
+                            item.hasSettings ? (
+                              <div key={idx} className="py-2 px-1">
+                                <span className="block text-sm font-medium text-mint mb-1">
+                                  {item.label}
+                                </span>
+                                <div className="space-y-3 mt-2">
+                                  {item.settings.map((setting) => (
+                                    <SettingToggle 
+                                      key={setting.id} 
+                                      setting={setting} 
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <Link
+                                key={idx}
+                                to={item.path || "#"}
+                                className="block py-2 px-1 text-sm text-gray-400 hover:text-mint"
+                                onClick={() => {
+                                  setOpenDropdown(null);
+                                  setIsMenuOpen(false);
+                                }}
+                              >
+                                {item.label}
+                              </Link>
+                            )
                           ))}
                         </div>
                       )}
@@ -417,8 +477,113 @@ const Navbar = () => {
           </div>
         )}
       </div>
+      
+      {/* Toast notification */}
+      {showToast && (
+        <ToastContainer>
+          <div className="flex">
+            <div className="flex-shrink-0 text-mint">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm">{toastMessage}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <div className="-mx-1.5 -my-1.5">
+                <button
+                  onClick={() => setShowToast(false)}
+                  className="inline-flex rounded-md p-1.5 text-mint hover:text-white hover:bg-mint/20 focus:outline-none"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </ToastContainer>
+      )}
     </nav>
   );
 };
+
+const SettingToggle = ({ setting }) => {
+  const [enabled, setEnabled] = useState(() => {
+    // Read initial value from localStorage
+    const savedValue = localStorage.getItem(setting.id);
+    return savedValue ? JSON.parse(savedValue) : false;
+  });
+
+  const toggleSetting = () => {
+    const newValue = !enabled;
+    setEnabled(newValue);
+    // Save to localStorage
+    localStorage.setItem(setting.id, JSON.stringify(newValue));
+    
+    // Show toast notification
+    let message = '';
+    if (setting.id === 'disableHyperSpeed') {
+      message = newValue ? 
+        'HyperSpeed animation will be skipped on future visits' : 
+        'HyperSpeed animation enabled on search page';
+    }
+    showNotification(message);
+  };
+
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="text-sm text-white">{setting.label}</div>
+        <div className="text-xs text-gray-400">{setting.description}</div>
+      </div>
+      <button
+        onClick={toggleSetting}
+        type="button"
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+          enabled ? 'bg-mint' : 'bg-gray-600'
+        }`}
+        role="switch"
+        aria-checked={enabled}
+      >
+        <span className="sr-only">Toggle {setting.label}</span>
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+            enabled ? 'translate-x-5' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
+  );
+};
+
+const ToastContainer = styled.div`
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
+  background-color: #121212; /* eerie-black */
+  color: white;
+  border: 1px solid #10b981; /* mint */
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-width: 20rem;
+  animation: slideIn 0.3s ease-out forwards;
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+`;
 
 export default Navbar;

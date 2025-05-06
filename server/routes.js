@@ -4,6 +4,7 @@ const router = express.Router();
 const config = require("./config.json");
 const { Pool, types } = require("pg");
 
+
 // Override the default parsing for BIGINT (PostgreSQL type ID 20)
 types.setTypeParser(20, (val) => parseInt(val, 10));
 
@@ -247,8 +248,7 @@ router.get("/state/:state/:year/", (req, res) => {
 
 // ROUTE SIX for question 6
 // The Question: How have crime incidents changed over the last 5 years in a given state?
-// [WORKS]
-router.get("/crime/:state", (req, res) => {
+router.get("/five-years/:state", (req, res) => {
   let { state } = req.params;
 
   // ensure state is camel case
@@ -260,7 +260,7 @@ router.get("/crime/:state", (req, res) => {
     FROM 
       Crime c JOIN State s ON c.StateID = s.StateID
     WHERE 
-      s.stateName = $1
+      s.StateName = $1
     GROUP BY 
       c.Year
     ORDER BY 
@@ -281,7 +281,7 @@ router.get("/crime/:state", (req, res) => {
 // ROUTE SEVEN
 // The question:
 // For a given city in a given state, how did the average job wage, total crime incidents, and median
-// housing sale price change over a selected range of years? [WORKS]
+// housing sale price change over a selected range of years?
 router.get("/housing/affordability", (req, res) => {
   pool.query(
     `
@@ -325,6 +325,7 @@ router.get("/housing/affordability", (req, res) => {
 // ~54 sec runtime
 
 router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
+  let { pctWorkforce, pctWage } = req.params;
   pool.query(
     `
     WITH Occupations AS (
@@ -352,7 +353,7 @@ router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
     FROM Occupations o
     ORDER BY o.StateName, o.AmountAboveStateAvg DESC;
   `,
-    [pct - workforce, pct - wage],
+    [pctWorkforce, pctWage],
     (error, results) => {
       if (error) {
         console.log(error);
@@ -365,8 +366,11 @@ router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 9
+// For a given state, which occupation titles have the highest percentage of the workforce?
 router.get("/jobs/:state", (req, res) => {
-  const { state } = req.params;
+  let { state } = req.params;
+  // Properly capitalize state name
+  state = capitalizeWords(state);
   pool.query(
     `
     SELECT 
@@ -422,4 +426,30 @@ router.get("/crime/:state", (req, res) => {
   );
 });
 
+// ROUTE FOR QUESTION 10
+// What are the top 20 most expensive cities for Single‑Family Residential in a given state?
+
+router.get("/housing/:state", (req, res) => {
+  let { state } = req.params;
+  // Properly capitalize state name
+  state = capitalizeWords(state);
+  pool.query(
+    `SELECT city, mediansaleprice
+    FROM housingRecord hr
+    JOIN state s USING (stateid)
+    WHERE s.statename = $1
+    AND  propertytype = 'Single Family Residential'
+    ORDER  BY mediansaleprice DESC
+    LIMIT 20;
+    `, [state],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
+    }
+  );
+})
 module.exports = router;

@@ -29,6 +29,236 @@
   }
 }
 
+/* Hero image animated border styles - inspired by Input.jsx */
+.hero-glow-border {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+/* Main border layer */
+.hero-glow-border::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  z-index: -1;
+  border-radius: 12px;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.hero-glow-border::before::after {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(82deg);
+  position: absolute;
+  width: 1200px;
+  height: 1200px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0),
+    #10b981,
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 0) 50%,
+    #195d30,
+    rgba(0, 0, 0, 0) 60%
+  );
+  transition: all 2s;
+}
+
+/* Dark border background layer */
+.hero-border-bg {
+  position: absolute;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  border-radius: 12px;
+  filter: blur(3px);
+}
+
+.hero-border-bg::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(82deg);
+  position: absolute;
+  width: 1500px;
+  height: 1500px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    rgba(255, 255, 255, 0),
+    #d8e0dd, /* mint */
+    rgba(255, 255, 255, 0) 10%,
+    rgba(255, 255, 255, 0) 50%,
+    #195d30, /* hunter green */
+    rgba(255, 255, 255, 0) 60%
+  );
+  animation: rotate-hero-border 20s linear infinite;
+}
+
+/* White layer */
+.hero-white-layer {
+  position: absolute;
+  max-height: 100%;
+  width: 100%; 
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  border-radius: 10px;
+  filter: blur(2px);
+}
+
+.hero-white-layer::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(83deg);
+  position: absolute;
+  width: 1500px;
+  height: 1500px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  filter: brightness(1.4);
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0) 0%,
+    #10b981, /* mint */
+    rgba(0, 0, 0, 0) 8%,
+    rgba(0, 0, 0, 0) 50%,
+    #195d30, /* hunter green */
+    rgba(0, 0, 0, 0) 58%
+  );
+  animation: rotate-hero-border-reverse 25s linear infinite;
+}
+
+/* Border layer */
+.hero-border-layer {
+  position: absolute;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  border-radius: 11px;
+  filter: blur(0.5px);
+}
+
+.hero-border-layer::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(70deg);
+  position: absolute;
+  width: 1500px;
+  height: 1500px;
+  filter: brightness(1.3);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    #121212, /* eerie-black */
+    #10b981 5%, /* mint */
+    #121212 14%, /* eerie-black */
+    #121212 50%, /* eerie-black */
+    #195d30 60%, /* hunter green */
+    #121212 64% /* eerie-black */
+  );
+  animation: rotate-hero-border 30s linear infinite;
+}
+
+/* Glow effect */
+.hero-glow-effect {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  overflow: hidden;
+  filter: blur(40px);
+  opacity: 0.4;
+  max-height: 110%;
+  border-radius: 12px;
+  z-index: -2;
+}
+
+.hero-glow-effect::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(60deg);
+  position: absolute;
+  width: 1800px;
+  height: 1800px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(
+    #000,
+    #10b981 5%,
+    #000 38%,
+    #000 50%,
+    #195d30 60%,
+    #000 87%
+  );
+  animation: rotate-hero-border-reverse 40s linear infinite;
+}
+
+/* Hover states */
+.hero-container:hover .hero-border-bg::before,
+.hero-container:focus-within .hero-border-bg::before {
+  transform: translate(-50%, -50%) rotate(262deg);
+  transition: all 4s;
+}
+
+.hero-container:hover .hero-glow-effect::before,
+.hero-container:focus-within .hero-glow-effect::before {
+  transform: translate(-50%, -50%) rotate(240deg);
+  transition: all 4s;
+}
+
+.hero-container:hover .hero-white-layer::before,
+.hero-container:focus-within .hero-white-layer::before {
+  transform: translate(-50%, -50%) rotate(263deg);
+  transition: all 4s;
+}
+
+.hero-container:hover .hero-border-layer::before,
+.hero-container:focus-within .hero-border-layer::before {
+  transform: translate(-50%, -50%) rotate(250deg);
+  transition: all 4s;
+}
+
+@keyframes rotate-hero-border {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes rotate-hero-border-reverse {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
 /* Animated border styles */
 .animated-border {
   position: relative;

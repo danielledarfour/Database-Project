@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, lazy, Suspense, useRef, useMemo } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Line, Bar, Pie } from 'react-chartjs-2';
+import axios from 'axios';
+import Loader from '../ui/Loader';
+import cityData, { usStates } from '../utils/cityData';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +17,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import DashboardFilters from '../components/dashboard/DashboardFilters';
+import useDashboardData from '../hooks/useDashboardData';
 
 // Register ChartJS components
 ChartJS.register(
@@ -28,200 +33,299 @@ ChartJS.register(
   Legend
 );
 
+// Set global chart defaults for modern styling
+ChartJS.defaults.font.family = "'Inter', 'Helvetica', 'Arial', sans-serif";
+ChartJS.defaults.color = 'rgba(255, 255, 255, 0.8)';
+ChartJS.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+ChartJS.defaults.elements.bar.borderRadius = 4;
+ChartJS.defaults.elements.bar.borderWidth = 0;
+ChartJS.defaults.elements.bar.backgroundColor = 'rgba(53, 162, 235, 0.7)';
+ChartJS.defaults.elements.bar.hoverBackgroundColor = 'rgba(53, 162, 235, 0.9)';
+ChartJS.defaults.plugins.tooltip.padding = 10;
+ChartJS.defaults.plugins.tooltip.cornerRadius = 8;
+ChartJS.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+ChartJS.defaults.plugins.tooltip.titleColor = 'rgba(255, 255, 255, 1)';
+ChartJS.defaults.plugins.tooltip.bodyColor = 'rgba(255, 255, 255, 0.9)';
+
+// Lazy-loaded components for better initial load performance
+const KeyMetricsSection = lazy(() => import('../components/dashboard/KeyMetricsSection'));
+const CrimeRateTrendChart = lazy(() => import('../components/dashboard/CrimeRateTrendChart'));
+const WageAnalysisChart = lazy(() => import('../components/dashboard/WageAnalysisChart'));
+const CrimeDistributionChart = lazy(() => import('../components/dashboard/CrimeDistributionChart'));
+const EmploymentDistributionChart = lazy(() => import('../components/dashboard/EmploymentDistributionChart'));
+const KeyInsightsSection = lazy(() => import('../components/dashboard/KeyInsightsSection'));
+const TopCrimesByCityChart = lazy(() => import('../components/dashboard/TopCrimesByCityChart'));
+
+// New lazy-loaded housing analysis components
+const HousingPriceAnalysisChart = lazy(() => import('../components/dashboard/HousingPriceAnalysisChart'));
+const PopularCitiesChart = lazy(() => import('../components/dashboard/PopularCitiesChart'));
+const PropertyTypeAnalysisChart = lazy(() => import('../components/dashboard/PropertyTypeAnalysisChart'));
+
+// Reusable loading component
+const ChartLoader = ({ height = "16rem" }) => (
+  <div className={`flex justify-center items-center`} style={{ height }}>
+    <Loader />
+  </div>
+);
+
+// Define available years and decades
+const yearRange = {
+  min: 1980,
+  max: 2014
+};
+
+// Available years
+const availableYears = Array.from({ length: yearRange.max - yearRange.min + 1 }, (_, i) => yearRange.max - i);
+
+// Define decades for quick scrolling
+const decades = {
+  "1980s": { start: 1980, end: 1989 },
+  "1990s": { start: 1990, end: 1999 },
+  "2000s": { start: 2000, end: 2009 },
+  "2010s": { start: 2010, end: 2019 },
+  "2020s": { start: 2020, end: 2023 },
+};
+
+// Crime rate and income benchmarks
+const PROPERTY_CRIME_BENCHMARKS = {
+  high: 3000,   // High crime rate threshold
+  medium: 2000, // Medium crime rate threshold
+  low: 1000     // Low crime rate threshold
+};
+
+// National median income benchmarks (approximate - for comparison)
+const INCOME_BENCHMARKS = {
+  high: 70000,    // High income threshold
+  medium: 55000,  // Medium income threshold
+  low: 40000      // Low income threshold
+};
+
 const Dashboard = () => {
-  const [activeChart, setActiveChart] = useState('unemployment');
-  const [selectedState, setSelectedState] = useState('All States');
-  const [selectedYear, setSelectedYear] = useState(2023);
-  const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
   
-  // TODO: Fetch this data from the API endpoints
-  const [unemploymentData, setUnemploymentData] = useState(null);
-  const [crimeRateData, setCrimeRateData] = useState(null);
-  const [crimeBySectorPieData, setCrimeBySectorPieData] = useState(null);
-  const [employmentBySectorPieData, setEmploymentBySectorPieData] = useState(null);
+  // Extract URL params for initial state
+  const urlParams = new URLSearchParams(location.search);
+  const initialFilters = {
+    state: urlParams.get('state') || 'California',
+    city: urlParams.get('city') || '',
+    year: urlParams.get('year') ? parseInt(urlParams.get('year')) : 2021,
+  };
+  
+  // Use the custom hook for data management
+  const { 
+    filters, 
+    updateFilter, 
+    data, 
+    loadingStates, 
+    searchData, 
+    searchError 
+  } = useDashboardData(initialFilters);
+  
+  // UI state for dropdowns
+  const [activeChart, setActiveChart] = useState('crimeRate');
+  const [isCityPickerOpen, setIsCityPickerOpen] = useState(false);
+  const [isYearPickerOpen, setIsYearPickerOpen] = useState(false);
 
-  // Sample states - Would typically come from the API
-  const states = [
-    'All States', 'California', 'Texas', 'New York', 'Florida', 'Illinois', 
-    'Pennsylvania', 'Ohio', 'Georgia', 'North Carolina', 'Michigan'
-  ];
-
-  // Sample years - Would typically be determined based on the available data
-  const years = Array.from({ length: 10 }, (_, i) => 2023 - i);
-
+  // Get available cities for the selected state
+  const availableCities = useMemo(() => {
+    const stateData = cityData[filters.state];
+    return stateData ? stateData.cities : [];
+  }, [filters.state]);
+  
+  // Sync URL with filters
   useEffect(() => {
-    // TODO: Implement API calls to fetch data
-    fetchDashboardData();
-  }, [selectedState, selectedYear]);
-
-  const fetchDashboardData = async () => {
-    setIsLoading(true);
-    try {
-      // TODO: Replace with actual API calls
-      const serverBaseUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
-      
-      // TODO: Fetch unemployment data
-      // const unemploymentResponse = await fetch(`${serverBaseUrl}/api/employment-data?state=${selectedState}&year=${selectedYear}`);
-      // const unemploymentResult = await unemploymentResponse.json();
-      // setUnemploymentData(unemploymentResult);
-      
-      // TODO: Fetch crime rate data
-      // const crimeResponse = await fetch(`${serverBaseUrl}/api/crime-data?state=${selectedState}&year=${selectedYear}`);
-      // const crimeResult = await crimeResponse.json();
-      // setCrimeRateData(crimeResult);
-      
-      // TODO: Fetch crime by sector data
-      // const crimeSectorResponse = await fetch(`${serverBaseUrl}/api/crime-data/by-sector?state=${selectedState}&year=${selectedYear}`);
-      // const crimeSectorResult = await crimeSectorResponse.json();
-      // setCrimeBySectorPieData(crimeSectorResult);
-      
-      // TODO: Fetch employment by sector data
-      // const employmentSectorResponse = await fetch(`${serverBaseUrl}/api/employment-data/by-sector?state=${selectedState}&year=${selectedYear}`);
-      // const employmentSectorResult = await employmentSectorResponse.json();
-      // setEmploymentBySectorPieData(employmentSectorResult);
-
-      // TEMPORARY: Using placeholder data until API is connected
-      setUnemploymentData({
-        labels: years.reverse(),
-        datasets: [
-          {
-            label: 'Unemployment Rate',
-            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            borderColor: '#3DD9D6',
-            backgroundColor: 'rgba(61, 217, 214, 0.5)',
-            tension: 0.3,
-          },
-          {
-            label: 'Employment Growth',
-            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            borderColor: '#2B6B39',
-            backgroundColor: 'rgba(43, 107, 57, 0.5)',
-            tension: 0.3,
-          },
-        ],
-      });
-      
-      setCrimeRateData({
-        labels: years.reverse(),
-        datasets: [
-          {
-            label: 'Violent Crime',
-            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            backgroundColor: 'rgba(61, 170, 101, 0.5)',
-          },
-          {
-            label: 'Property Crime',
-            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            backgroundColor: 'rgba(43, 107, 57, 0.5)',
-          },
-        ],
-      });
-      
-      setCrimeBySectorPieData({
-        labels: ['Theft', 'Assault', 'Burglary', 'Robbery', 'Vehicle Theft', 'Other'],
-        datasets: [
-          {
-            label: 'Crime Distribution',
-            data: [0, 0, 0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(61, 217, 214, 0.6)',
-              'rgba(61, 170, 101, 0.6)',
-              'rgba(43, 107, 57, 0.6)',
-              'rgba(43, 107, 57, 0.8)',
-              'rgba(20, 28, 28, 0.6)',
-              'rgba(20, 28, 28, 0.8)',
-            ],
-            borderWidth: 1,
-          },
-        ],
-      });
-      
-      setEmploymentBySectorPieData({
-        labels: [
-          'Healthcare', 
-          'Retail', 
-          'Manufacturing', 
-          'Education', 
-          'Professional Services', 
-          'Other'
-        ],
-        datasets: [
-          {
-            label: 'Employment by Sector',
-            data: [0, 0, 0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(61, 217, 214, 0.6)',
-              'rgba(61, 170, 101, 0.6)',
-              'rgba(43, 107, 57, 0.6)',
-              'rgba(43, 107, 57, 0.8)',
-              'rgba(20, 28, 28, 0.6)',
-              'rgba(20, 28, 28, 0.8)',
-            ],
-            borderWidth: 1,
-          },
-        ],
-      });
-      
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      // TODO: Handle error states more gracefully
-    } finally {
-      setIsLoading(false);
+    const params = new URLSearchParams();
+    params.set('state', filters.state);
+    params.set('year', filters.year.toString());
+    
+    if (filters.city) {
+      params.set('city', filters.city);
     }
+    
+    navigate({
+      pathname: location.pathname,
+      search: params.toString()
+    }, { replace: true });
+  }, [filters, navigate, location.pathname]);
+
+
+  // Generate data based on API results
+  const generateKeyMetricsData = () => {
+    // Initialize with empty values to show loading state
+    const metrics = [
+      { 
+        title: 'Avg Property Crime Rate', 
+        value: '—', 
+        change: '—', 
+        isPositive: true 
+      },
+      { 
+        title: 'Median Income', 
+        value: '—', 
+        change: '—', 
+        isPositive: true 
+      },
+      { 
+        title: 'Affordability Ratio', 
+        value: '—', 
+        change: '—', 
+        isPositive: false 
+      },
+      { 
+        title: 'Avg Violent Crime Rate', 
+        value: '—', 
+        change: '—', 
+        isPositive: true 
+      },
+    ];
+      
+    // Update with real data if available
+    if (data.affordabilityData && data.affordabilityData.length > 0) {
+      const stateData = data.affordabilityData.find(d => 
+        d.statename.toLowerCase() === filters.state.toLowerCase()
+      );
+      
+      if (stateData) {
+        metrics[2] = {
+          title: 'Affordability Ratio',
+          value: stateData.price_to_income_ratio,
+          change: stateData.price_to_income_ratio > 5 ? 'High' : 'Moderate',
+          isPositive: stateData.price_to_income_ratio <= 5
+        };
+      }
+    }
+    
+    // If we have crime data, update crime rate metrics
+    if (data.crimeTrendData && data.crimeTrendData.length >= 2) {
+      const sortedData = [...data.crimeTrendData].sort((a, b) => parseInt(a.year) - parseInt(b.year));
+      
+      // Calculate average property crime rate across all available years
+      if (sortedData.length > 0) {
+        // Calculate property crime rate for each year (using 80% of total incidents as property crimes)
+        const propertyCrimeRates = sortedData.map(yearData => {
+          const incidents = parseInt(yearData.totalincidents);
+          // Calculate property crime rate per 100,000 population
+          return Math.round(incidents * 0.8);
+        });
+      
+        // Calculate the average property crime rate
+        const avgPropertyCrimeRate = Math.round(
+          propertyCrimeRates.reduce((sum, rate) => sum + rate, 0) / propertyCrimeRates.length
+        );
+        
+        // Determine severity level based on benchmarks
+        let propertySeverityLevel;
+        if (avgPropertyCrimeRate >= PROPERTY_CRIME_BENCHMARKS.high) {
+          propertySeverityLevel = 'High';
+        } else if (avgPropertyCrimeRate >= PROPERTY_CRIME_BENCHMARKS.medium) {
+          propertySeverityLevel = 'Medium';
+        } else if (avgPropertyCrimeRate >= PROPERTY_CRIME_BENCHMARKS.low) {
+          propertySeverityLevel = 'Low';
+        } else {
+          propertySeverityLevel = 'Very Low';
+        }
+        
+        // Update property crime metric
+        metrics[0] = {
+          title: 'Avg Property Crime Rate',
+          value: avgPropertyCrimeRate.toString(),
+          change: propertySeverityLevel,
+          isPositive: avgPropertyCrimeRate < PROPERTY_CRIME_BENCHMARKS.medium
+        };
+        
+        // Calculate violent crime rates for each year (20% of total incidents)
+        const violentCrimeRates = sortedData.map(yearData => {
+          const incidents = parseInt(yearData.totalincidents);
+          return Math.round(incidents * 0.2);
+        });
+        
+        // Calculate the average violent crime rate
+        const avgViolentCrimeRate = Math.round(
+          violentCrimeRates.reduce((sum, rate) => sum + rate, 0) / violentCrimeRates.length
+        );
+        
+        // Determine severity level for violent crime
+        let violentSeverityLevel;
+        if (avgViolentCrimeRate >= 500) {
+          violentSeverityLevel = 'High';
+        } else if (avgViolentCrimeRate >= 300) {
+          violentSeverityLevel = 'Medium';
+        } else if (avgViolentCrimeRate >= 200) {
+          violentSeverityLevel = 'Low';
+        } else {
+          violentSeverityLevel = 'Very Low';
+        }
+        
+        // Update violent crime metric
+        metrics[3] = {
+          title: 'Avg Violent Crime Rate',
+          value: avgViolentCrimeRate.toString(),
+          change: violentSeverityLevel,
+          isPositive: avgViolentCrimeRate < 300
+        };
+      }
+    }
+    
+    // Calculate Median Income from occupation data
+    if (data.topOccupationsData && data.topOccupationsData.length > 0) {
+      // Use wage data to estimate median income for the state
+      const wages = data.topOccupationsData
+        .filter(job => job.avgwage && !isNaN(parseFloat(job.avgwage)))
+        .map(job => parseFloat(job.avgwage));
+      
+      if (wages.length > 0) {
+        // Sort wages and find the median value
+        wages.sort((a, b) => a - b);
+        let medianIncome;
+        
+        if (wages.length % 2 === 0) {
+          // If there's an even number of wages, take the average of the middle two
+          const midIndex = wages.length / 2;
+          medianIncome = (wages[midIndex - 1] + wages[midIndex]) / 2;
+        } else {
+          // If there's an odd number of wages, take the middle one
+          medianIncome = wages[Math.floor(wages.length / 2)];
+        }
+        
+        // Round to the nearest hundred
+        medianIncome = Math.round(medianIncome / 100) * 100;
+        
+        // Determine income level based on benchmarks
+        let incomeLevel;
+        if (medianIncome >= INCOME_BENCHMARKS.high) {
+          incomeLevel = 'High';
+        } else if (medianIncome >= INCOME_BENCHMARKS.medium) {
+          incomeLevel = 'Above Average';
+        } else if (medianIncome >= INCOME_BENCHMARKS.low) {
+          incomeLevel = 'Moderate';
+        } else {
+          incomeLevel = 'Below Average';
+        }
+        
+        // Update median income metric
+        metrics[1] = {
+          title: 'Median Income',
+          value: `$${medianIncome.toLocaleString()}`,
+          change: incomeLevel,
+          isPositive: medianIncome >= INCOME_BENCHMARKS.medium
+        };
+      }
+    }
+
+    return metrics;
   };
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: false,
-      },
-    },
-  };
+  // Main loading state for the entire dashboard
+  const isDashboardLoading = loadingStates.affordability || loadingStates.occupations || 
+                             loadingStates.housing || loadingStates.crimeTrend;
 
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'right',
-      },
-      title: {
-        display: false,
-      },
-    },
-  };
-
-  const handleStateChange = (e) => {
-    setSelectedState(e.target.value);
-    // The useEffect will trigger a refetch when state changes
-  };
-
-  const handleYearChange = (e) => {
-    setSelectedYear(parseInt(e.target.value));
-    // The useEffect will trigger a refetch when year changes
-  };
-
-  const chartTabs = [
-    { id: 'unemployment', label: 'Unemployment Trends' },
-    { id: 'crimeRate', label: 'Crime Rate Trends' },
-    { id: 'correlation', label: 'Unemployment-Crime Correlation' },
-  ];
-
-  // Show a loading state if data isn't ready yet
-  if (!unemploymentData || !crimeRateData || !crimeBySectorPieData || !employmentBySectorPieData) {
+  // Show full-page loader while initial data loads
+  if (isDashboardLoading && !data.affordabilityData && !data.crimeTrendData && 
+      !data.topOccupationsData && !data.housingPriceData) {
     return (
       <div className="min-h-screen bg-eerie-black flex justify-center items-center">
-        <p className="text-lg font-medium text-white">Loading dashboard data...</p>
+        <Loader />
       </div>
     );
   }
@@ -250,106 +354,42 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* Filters Section */}
-      <div className="py-6 px-4 relative z-10">
-        <div className="container mx-auto">
-          <motion.div 
-            className="backdrop-blur-md bg-eerie-black rounded-lg shadow-lg border border-white/40 p-6 -mt-16 mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <div className="w-full sm:w-48">
-                  <label htmlFor="stateFilter" className="block text-sm font-medium text-white mb-1">
-                    State
-                  </label>
-                  <select
-                    id="stateFilter"
-                    className="block w-full px-3 py-2 border border-gray-700 bg-eerie-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-mint focus:border-transparent"
-                    value={selectedState}
-                    onChange={handleStateChange}
-                  >
-                    {states.map((state) => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="w-full sm:w-32">
-                  <label htmlFor="yearFilter" className="block text-sm font-medium text-white mb-1">
-                    Year
-                  </label>
-                  <select
-                    id="yearFilter"
-                    className="block w-full px-3 py-2 border border-gray-700 bg-eerie-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-mint focus:border-transparent"
-                    value={selectedYear}
-                    onChange={handleYearChange}
-                  >
-                    {years.map((year) => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <Link
-                  to="/search"
-                  className="inline-flex items-center px-4 py-3 bg-hunter-green text-white font-medium rounded-md hover:bg-hunter-green/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hunter-green"
-                >
-                  <svg className="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
-                  </svg>
-                  Advanced Search
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
+      {/* Filters Section - Now using the extracted component */}
+      <DashboardFilters 
+        filters={filters}
+        availableCities={availableCities}
+        onFilterChange={updateFilter}
+        onSearch={searchData}
+        isSearching={loadingStates.searching}
+        searchError={searchError}
+        isCityPickerOpen={isCityPickerOpen}
+        isYearPickerOpen={isYearPickerOpen}
+        setIsCityPickerOpen={setIsCityPickerOpen}
+        setIsYearPickerOpen={setIsYearPickerOpen}
+        decades={decades}
+        availableYears={availableYears}
+      />
       
       {/* Main Dashboard Content */}
       <div className="container mx-auto px-4 pb-12">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {[
-            { title: 'Violent Crime Rate', value: '382.5', change: '-1.2%', isPositive: true },
-            { title: 'Property Crime Rate', value: '1,933.8', change: '-3.8%', isPositive: true },
-            { title: 'Unemployment Rate', value: '3.7%', change: '+0.1%', isPositive: false },
-            { title: 'Job Growth', value: '1.3%', change: '-0.8%', isPositive: false },
-          ].map((metric, index) => (
-            <motion.div
-              key={index}
-              className="mouse-position-border bg-eerie-black border border-white/40 rounded-lg p-6 shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
-            >
-              <h3 className="text-sm font-medium text-gray-300 mb-1">{metric.title}</h3>
-              <div className="flex items-end justify-between">
-                <p className="text-2xl font-bold text-white">{metric.value}</p>
-                <span className={`text-sm font-medium ${metric.isPositive ? 'text-mint' : 'text-red-500'} flex items-center`}>
-                  {metric.change}
-                  {metric.isPositive ? (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                  )}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <Suspense fallback={<ChartLoader height="10rem" />}>
+          <KeyMetricsSection 
+            metrics={generateKeyMetricsData()} 
+            isLoading={loadingStates.affordability} 
+          />
+        </Suspense>
+        
         
         {/* Chart Tabs */}
         <div className="bg-eerie-black rounded-lg shadow-md border border-white/40 mb-6">
           <div className="border-b border-gray-800">
             <nav className="flex space-x-4 p-4">
-              {chartTabs.map((tab) => (
+              {[
+                { id: 'crimeRate', label: 'Crime Rate Trends' },
+                { id: 'wageAnalysis', label: 'Wage Analysis' },
+                { id: 'topCrimes', label: 'Top Crime Cities' }
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveChart(tab.id)}
@@ -366,114 +406,81 @@ const Dashboard = () => {
           </div>
           
           <div className="p-6">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <svg className="animate-spin h-8 w-8 text-mint" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
-            ) : (
-              <>
-                {activeChart === 'unemployment' && (
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium text-white">Unemployment Trends (2014-2023)</h3>
-                      <p className="text-gray-400">Tracking changes in unemployment rates and job growth over the past decade.</p>
-                    </div>
-                    <div className="h-80">
-                      <Line data={unemploymentData} options={chartOptions} />
-                    </div>
-                  </div>
+            <Suspense fallback={<ChartLoader height="20rem" />}>              
+              {activeChart === 'crimeRate' && (
+                <CrimeRateTrendChart 
+                  selectedState={filters.state} 
+                  selectedCity={filters.city}
+                  crimeTrendData={data.crimeTrendData}
+                  isLoading={loadingStates.crimeTrend}
+                />
                 )}
                 
-                {activeChart === 'crimeRate' && (
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium text-white">Crime Rate Trends (2014-2023)</h3>
-                      <p className="text-gray-400">Tracking changes in violent and property crime rates over the past decade.</p>
-                    </div>
-                    <div className="h-80">
-                      <Bar data={crimeRateData} options={chartOptions} />
-                    </div>
-                  </div>
+              {activeChart === 'wageAnalysis' && (
+                <WageAnalysisChart 
+                  selectedState={filters.state}
+                  selectedYear={filters.year}
+                />
+              )}
+              
+              {activeChart === 'topCrimes' && (
+                <TopCrimesByCityChart
+                  selectedState={filters.state}
+                  selectedYear={filters.year}
+                />
                 )}
-                
-                {activeChart === 'correlation' && (
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium text-white">Unemployment-Crime Correlation</h3>
-                      <p className="text-gray-400">Exploring the relationship between unemployment rates and crime statistics.</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="h-64">
-                        <Line
-                          data={{
-                            labels: years,
-                            datasets: [
-                              {
-                                label: 'Unemployment Rate',
-                                data: [3.7, 3.6, 5.4, 8.1, 3.7, 3.9, 4.4, 4.9, 5.3, 4.7],
-                                borderColor: '#3DD9D6',
-                                backgroundColor: 'rgba(61, 217, 214, 0.5)',
-                                yAxisID: 'y',
-                              },
-                              {
-                                label: 'Crime Index',
-                                data: [375, 380, 390, 400, 395, 385, 380, 390, 400, 410],
-                                borderColor: '#2B6B39',
-                                backgroundColor: 'rgba(43, 107, 57, 0.5)',
-                                yAxisID: 'y1',
-                              },
-                            ],
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                              mode: 'index',
-                              intersect: false,
-                            },
-                            scales: {
-                              y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                  display: true,
-                                  text: 'Unemployment %',
-                                },
-                              },
-                              y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                  display: true,
-                                  text: 'Crime Index',
-                                },
-                                grid: {
-                                  drawOnChartArea: false,
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </div>
-                      <div className="h-64 flex items-center justify-center">
-                        <div className="text-center px-4">
-                          <div className="text-3xl font-bold text-mint mb-2">0.63</div>
-                          <p className="text-gray-400 mb-4">Correlation Coefficient</p>
-                          <p className="text-sm text-gray-400">Moderate positive correlation between unemployment rates and overall crime index. Each 1% increase in unemployment correlates with approximately 15 point increase in crime index.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+            </Suspense>
           </div>
         </div>
+        
+
+        {/* City Housing Price Analysis - Only visible when a city is selected */}
+        {filters.city && (
+          <motion.div 
+            className="bg-eerie-black rounded-lg shadow-md border border-gray-800 p-6 my-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Suspense fallback={<ChartLoader height="24rem" />}>
+              <HousingPriceAnalysisChart 
+                selectedState={filters.state}
+                selectedCity={filters.city}
+              />
+            </Suspense>
+          </motion.div>
+        )}
+        
+        {/* Property Type Analysis - Only visible when a city is selected */}
+        {filters.city && (
+          <motion.div 
+            className="bg-eerie-black rounded-lg shadow-md border border-gray-800 p-6 my-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Suspense fallback={<ChartLoader height="24rem" />}>
+              <PropertyTypeAnalysisChart 
+                selectedState={filters.state}
+                selectedCity={filters.city}
+              />
+            </Suspense>
+          </motion.div>
+        )}
+        
+        {/* Popular Cities Chart - Always visible */}
+        <motion.div 
+          className="bg-eerie-black rounded-lg shadow-md border border-gray-800 p-6 my-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Suspense fallback={<ChartLoader height="24rem" />}>
+            <PopularCitiesChart 
+              selectedState={filters.state}
+            />
+          </Suspense>
+        </motion.div>
         
         {/* Distribution Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -485,10 +492,15 @@ const Dashboard = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <h3 className="text-lg font-medium text-mint mb-1">Crime Distribution by Type</h3>
-            <p className="text-gray-400 mb-4">Breakdown of crime incidents by category for {selectedYear}.</p>
-            <div className="h-64">
-              <Pie data={crimeBySectorPieData} options={pieOptions} />
-            </div>
+            <p className="text-gray-400 mb-4">Breakdown of crime incidents by category for {filters.year}.</p>
+            <Suspense fallback={<ChartLoader height="16rem" />}>
+              <CrimeDistributionChart 
+                selectedState={filters.state} 
+                selectedCity={filters.city}
+                selectedYear={filters.year}
+                isLoading={loadingStates.crimeTrend}
+              />
+            </Suspense>
           </motion.div>
           
           {/* Employment Distribution */}
@@ -499,64 +511,27 @@ const Dashboard = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <h3 className="text-lg font-medium text-mint mb-1">Employment by Sector</h3>
-            <p className="text-gray-400 mb-4">Distribution of employment across major industries for {selectedYear}.</p>
-            <div className="h-64">
-              <Pie data={employmentBySectorPieData} options={pieOptions} />
-            </div>
+            <p className="text-gray-400 mb-4">Distribution of employment across major industries for {filters.year}.</p>
+            <Suspense fallback={<ChartLoader height="16rem" />}>
+              <EmploymentDistributionChart 
+                selectedState={filters.state}
+              />
+            </Suspense>
           </motion.div>
         </div>
         
+        
         {/* Key Insights */}
-        <div className="bg-eerie-black rounded-xl shadow-card p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-6">Key Insights</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                title: 'State Comparison',
-                description: 'California has 25% higher employment rates but 18% higher property crime compared to the national average.',
-                icon: (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                ),
-              },
-              {
-                title: 'Unemployment Impact',
-                description: 'For every 1% increase in unemployment, property crime increases by an average of 2.3% nationally.',
-                icon: (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                ),
-              },
-              {
-                title: 'Trends Over Time',
-                description: 'Both unemployment and crime rates have decreased overall in the past decade, with temporary spikes during economic downturns.',
-                icon: (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
-                ),
-              },
-            ].map((insight, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-eerie-black rounded-lg p-5"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full mr-3">
-                    {insight.icon}
-                  </div>
-                  <h3 className="text-lg font-semibold text-white">{insight.title}</h3>
-                </div>
-                <p className="text-gray-400">{insight.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        <Suspense fallback={<ChartLoader height="12rem" />}>
+          <KeyInsightsSection 
+            selectedState={filters.state}
+            selectedCity={filters.city}
+            housingData={data.housingPriceData}
+            crimeData={data.crimeTrendData}
+            occupationData={data.topOccupationsData}
+            isLoading={loadingStates.housing || loadingStates.crimeTrend || loadingStates.occupations}
+          />
+        </Suspense>
         
         {/* Get More Data CTA */}
         <motion.div
@@ -574,7 +549,7 @@ const Dashboard = () => {
             </div>
             <div className="flex-shrink-0">
               <Link
-                to="/ai-insights"
+                to={`/ai-insights?state=${filters.state}${filters.city ? `&city=${filters.city}` : ''}&year=${filters.year}`}
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-hunter-green hover:bg-hunter-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hunter-green"
               >
                 Explore AI Insights

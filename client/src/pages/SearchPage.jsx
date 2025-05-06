@@ -12,130 +12,20 @@ import cityData from "../utils/cityData";
 import Sidebar, { dataQuestions } from "../components/Sidebar";
 
 // Import question components
-import HousingQuestion from "../questions/HousingQuestion";
-import CrimeQuestion from "../questions/CrimeQuestion";
+import HousingQuestion from "../questions/Question2/HousingQuestion";
+import CrimeQuestion from "../questions/Question1/CrimeQuestion";
 import GenericQuestion from "../questions/GenericQuestion";
-import StateHousePrices from "../questions/StateHousePrices";
-
+import StateHousePrices from "../questions/Question3/StateHousePrices";
+import AverageWageQuestion from "../questions/Question5/AverageWageQuestion";
+import CrimeIncidentsQuestion from "../questions/Question6/CrimeIncidentsQuestion";
+import AffordabilityQuestion from "../questions/Question7/AffordabilityQuestion";
+import OccupationQuestion from "../questions/Question8/OccupationQuestion";
+import PopularWorkforce from "../questions/Question9/PopularWorkforce";
+import StateHousing from "../questions/Question10/StateHousing";
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Available property types
-const propertyTypes = [
-  "Condo/Co-op",
-  "Multi-Family (2-4 Unit)",
-  "Single Family Residential",
-  "Townhouse",
-  "All Residential"
-];
 
-// All US states for dropdown
-const usStates = [
-  { id: 'AL', name: 'Alabama' },
-  { id: 'AK', name: 'Alaska' },
-  { id: 'AZ', name: 'Arizona' },
-  { id: 'AR', name: 'Arkansas' },
-  { id: 'CA', name: 'California' },
-  { id: 'CO', name: 'Colorado' },
-  { id: 'CT', name: 'Connecticut' },
-  { id: 'DE', name: 'Delaware' },
-  { id: 'FL', name: 'Florida' },
-  { id: 'GA', name: 'Georgia' },
-  { id: 'HI', name: 'Hawaii' },
-  { id: 'ID', name: 'Idaho' },
-  { id: 'IL', name: 'Illinois' },
-  { id: 'IN', name: 'Indiana' },
-  { id: 'IA', name: 'Iowa' },
-  { id: 'KS', name: 'Kansas' },
-  { id: 'KY', name: 'Kentucky' },
-  { id: 'LA', name: 'Louisiana' },
-  { id: 'ME', name: 'Maine' },
-  { id: 'MD', name: 'Maryland' },
-  { id: 'MA', name: 'Massachusetts' },
-  { id: 'MI', name: 'Michigan' },
-  { id: 'MN', name: 'Minnesota' },
-  { id: 'MS', name: 'Mississippi' },
-  { id: 'MO', name: 'Missouri' },
-  { id: 'MT', name: 'Montana' },
-  { id: 'NE', name: 'Nebraska' },
-  { id: 'NV', name: 'Nevada' },
-  { id: 'NH', name: 'New Hampshire' },
-  { id: 'NJ', name: 'New Jersey' },
-  { id: 'NM', name: 'New Mexico' },
-  { id: 'NY', name: 'New York' },
-  { id: 'NC', name: 'North Carolina' },
-  { id: 'ND', name: 'North Dakota' },
-  { id: 'OH', name: 'Ohio' },
-  { id: 'OK', name: 'Oklahoma' },
-  { id: 'OR', name: 'Oregon' },
-  { id: 'PA', name: 'Pennsylvania' },
-  { id: 'RI', name: 'Rhode Island' },
-  { id: 'SC', name: 'South Carolina' },
-  { id: 'SD', name: 'South Dakota' },
-  { id: 'TN', name: 'Tennessee' },
-  { id: 'TX', name: 'Texas' },
-  { id: 'UT', name: 'Utah' },
-  { id: 'VT', name: 'Vermont' },
-  { id: 'VA', name: 'Virginia' },
-  { id: 'WA', name: 'Washington' },
-  { id: 'WV', name: 'West Virginia' },
-  { id: 'WI', name: 'Wisconsin' },
-  { id: 'WY', name: 'Wyoming' }
-];
-
-// Adjacent/nearby states for recommendations
-const nearbyStates = {
-  'Alabama': ['Florida', 'Georgia', 'Tennessee', 'Mississippi'],
-  'Alaska': ['Washington', 'Hawaii', 'Oregon'],
-  'Arizona': ['California', 'Nevada', 'Utah', 'New Mexico'],
-  'Arkansas': ['Louisiana', 'Mississippi', 'Tennessee', 'Missouri', 'Oklahoma', 'Texas'],
-  'California': ['Oregon', 'Nevada', 'Arizona'],
-  'Colorado': ['Wyoming', 'Nebraska', 'Kansas', 'Oklahoma', 'New Mexico', 'Arizona', 'Utah'],
-  'Connecticut': ['Rhode Island', 'Massachusetts', 'New York'],
-  'Delaware': ['Maryland', 'Pennsylvania', 'New Jersey'],
-  'Florida': ['Georgia', 'Alabama'],
-  'Georgia': ['Florida', 'Alabama', 'Tennessee', 'North Carolina', 'South Carolina'],
-  'Hawaii': ['California', 'Alaska'],
-  'Idaho': ['Washington', 'Oregon', 'Nevada', 'Utah', 'Wyoming', 'Montana'],
-  'Illinois': ['Wisconsin', 'Indiana', 'Kentucky', 'Missouri', 'Iowa'],
-  'Indiana': ['Michigan', 'Ohio', 'Kentucky', 'Illinois'],
-  'Iowa': ['Minnesota', 'Wisconsin', 'Illinois', 'Missouri', 'Nebraska', 'South Dakota'],
-  'Kansas': ['Nebraska', 'Missouri', 'Oklahoma', 'Colorado'],
-  'Kentucky': ['Indiana', 'Ohio', 'West Virginia', 'Virginia', 'Tennessee', 'Missouri', 'Illinois'],
-  'Louisiana': ['Texas', 'Arkansas', 'Mississippi'],
-  'Maine': ['New Hampshire'],
-  'Maryland': ['Pennsylvania', 'Delaware', 'Virginia', 'West Virginia'],
-  'Massachusetts': ['Rhode Island', 'Connecticut', 'New York', 'New Hampshire', 'Vermont'],
-  'Michigan': ['Wisconsin', 'Indiana', 'Ohio'],
-  'Minnesota': ['Wisconsin', 'Iowa', 'South Dakota', 'North Dakota'],
-  'Mississippi': ['Louisiana', 'Arkansas', 'Tennessee', 'Alabama'],
-  'Missouri': ['Iowa', 'Illinois', 'Kentucky', 'Tennessee', 'Arkansas', 'Oklahoma', 'Kansas', 'Nebraska'],
-  'Montana': ['Idaho', 'Wyoming', 'South Dakota', 'North Dakota'],
-  'Nebraska': ['South Dakota', 'Iowa', 'Missouri', 'Kansas', 'Colorado', 'Wyoming'],
-  'Nevada': ['Oregon', 'Idaho', 'Utah', 'Arizona', 'California'],
-  'New Hampshire': ['Maine', 'Massachusetts', 'Vermont'],
-  'New Jersey': ['New York', 'Pennsylvania', 'Delaware'],
-  'New Mexico': ['Arizona', 'Utah', 'Colorado', 'Oklahoma', 'Texas'],
-  'New York': ['Vermont', 'Massachusetts', 'Connecticut', 'New Jersey', 'Pennsylvania'],
-  'North Carolina': ['Virginia', 'Tennessee', 'Georgia', 'South Carolina'],
-  'North Dakota': ['Minnesota', 'South Dakota', 'Montana'],
-  'Ohio': ['Michigan', 'Pennsylvania', 'West Virginia', 'Kentucky', 'Indiana'],
-  'Oklahoma': ['Kansas', 'Missouri', 'Arkansas', 'Texas', 'New Mexico', 'Colorado'],
-  'Oregon': ['Washington', 'Idaho', 'Nevada', 'California'],
-  'Pennsylvania': ['New York', 'New Jersey', 'Delaware', 'Maryland', 'West Virginia', 'Ohio'],
-  'Rhode Island': ['Connecticut', 'Massachusetts'],
-  'South Carolina': ['North Carolina', 'Georgia'],
-  'South Dakota': ['North Dakota', 'Minnesota', 'Iowa', 'Nebraska', 'Wyoming', 'Montana'],
-  'Tennessee': ['Kentucky', 'Virginia', 'North Carolina', 'Georgia', 'Alabama', 'Mississippi', 'Arkansas', 'Missouri'],
-  'Texas': ['New Mexico', 'Oklahoma', 'Arkansas', 'Louisiana'],
-  'Utah': ['Idaho', 'Wyoming', 'Colorado', 'New Mexico', 'Arizona', 'Nevada'],
-  'Vermont': ['New Hampshire', 'Massachusetts', 'New York'],
-  'Virginia': ['Maryland', 'West Virginia', 'Kentucky', 'Tennessee', 'North Carolina'],
-  'Washington': ['Idaho', 'Oregon'],
-  'West Virginia': ['Pennsylvania', 'Maryland', 'Virginia', 'Kentucky', 'Ohio'],
-  'Wisconsin': ['Michigan', 'Minnesota', 'Iowa', 'Illinois'],
-  'Wyoming': ['Montana', 'South Dakota', 'Nebraska', 'Colorado', 'Utah', 'Idaho']
-};
 
 const SearchPage = () => {
   // Map state
@@ -147,7 +37,11 @@ const SearchPage = () => {
   const [selectedQuestion, setSelectedQuestion] = useState(2); // Default to housing question
 
   // Hyperspeed effect state
-  const [showHyperspeed, setShowHyperspeed] = useState(true);
+  const [showHyperspeed, setShowHyperspeed] = useState(() => {
+    // Check if user has disabled HyperSpeed in settings
+    const disableHyperSpeed = localStorage.getItem("disableHyperSpeed");
+    return disableHyperSpeed === "true" ? false : true;
+  });
   const [hyperspeedSpeed, setHyperspeedSpeed] = useState(1);
   const [fadeOut, setFadeOut] = useState(false);
   const [isHolding, setIsHolding] = useState(false);
@@ -322,6 +216,18 @@ const SearchPage = () => {
         return <HousingQuestion showMap={showMap} setShowMap={setShowMap} />;
       case 3:
         return <StateHousePrices showMap={showMap} setShowMap={setShowMap} />;
+      case 5:
+        return <AverageWageQuestion />;
+      case 6:
+        return <CrimeIncidentsQuestion />;
+      case 7:
+        return <AffordabilityQuestion />;
+      case 8:
+        return <OccupationQuestion />;
+      case 9:
+        return <PopularWorkforce />;
+      case 10:
+        return <StateHousing />;
       default:
         // For other question types, use the generic component
         const questionData = dataQuestions.find(q => q.id === selectedQuestion);
@@ -330,9 +236,13 @@ const SearchPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-eerie-black relative">
+    <div className="min-h-screen flex flex-col bg-eerie-black relative">
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${showSidebar && isPinned ? 'ml-[350px]' : 'ml-0'} ${showHyperspeed ? 'blur-lg' : 'blur-0'} transition-all duration-1000`}>
+      <div 
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          showSidebar && isPinned ? 'ml-[320px]' : 'ml-0'
+        } ${showHyperspeed ? 'blur-lg' : 'blur-0'} duration-1000`}
+      >
         {/* Sidebar Component */}
         <Sidebar
           showSidebar={showSidebar}
@@ -353,10 +263,18 @@ const SearchPage = () => {
             <p className="text-lg text-white/80 mb-6">
               {dataQuestions.find(q => q.id === selectedQuestion)?.description || "Explore data across multiple dimensions"}
             </p>
-            
-            {/* Dynamic Question Component */}
+          </div>
+        </div>
+
+        {/* Question Content Area - Always fills remaining space */}
+        <div className="flex-1 flex flex-col container mx-auto px-4 py-6">
+          {/* Dynamic Question Component */}
+          <div className="flex-1">
             {renderQuestionComponent()}
           </div>
+          
+          {/* Bottom spacer to ensure minimum content height */}
+          <div className="h-24"></div>
         </div>
       </div>
       
@@ -473,17 +391,50 @@ const SearchPage = () => {
       
       {/* Restart Hyperspeed Button (when hidden) */}
       {!showHyperspeed && (
-        <motion.button
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-8 right-8 z-40 px-4 py-2 bg-mint text-eerie-black rounded-md font-medium flex items-center"
-          onClick={resetHyperspeed}
+          className="fixed bottom-8 right-8 z-40 flex flex-col space-y-2"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-          </svg>
-          Hyperspeed
-        </motion.button>
+          <motion.button
+            className="px-4 py-2 bg-mint text-eerie-black rounded-md font-medium flex items-center"
+            onClick={resetHyperspeed}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+            Hyperspeed
+          </motion.button>
+          <motion.button
+            className="px-4 py-2 bg-transparent border border-mint/30 text-mint rounded-md font-medium flex items-center text-sm"
+            onClick={() => {
+              // Toggle the persistence setting
+              const currentSetting = localStorage.getItem("disableHyperSpeed");
+              const newSetting = currentSetting === "true" ? "false" : "true";
+              localStorage.setItem("disableHyperSpeed", newSetting);
+              
+              // Show a brief confirmation message
+              const messageElement = document.createElement('div');
+              messageElement.className = 'fixed bottom-20 right-8 z-40 bg-eerie-black border border-mint text-white px-4 py-2 rounded-md text-sm';
+              messageElement.textContent = newSetting === "true" ? 
+                "HyperSpeed will not show on future visits" : 
+                "HyperSpeed will show on future visits";
+              document.body.appendChild(messageElement);
+              
+              // Remove the message after 3 seconds
+              setTimeout(() => {
+                document.body.removeChild(messageElement);
+              }, 3000);
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+            </svg>
+            {localStorage.getItem("disableHyperSpeed") === "true" ? 
+              "Enable on Startup" : 
+              "Disable on Startup"}
+          </motion.button>
+        </motion.div>
       )}
     </div>
   );
