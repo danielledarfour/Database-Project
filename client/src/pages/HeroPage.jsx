@@ -39,6 +39,7 @@ import danielle from "../assets/danielle3.jpg";
 
 import video1 from "../assets/videoOne.gif";
 import video2 from "../assets/videoTwo.gif";
+import video3 from "../assets/videoThree.gif";
 import heroImage from "../assets/heropage.png";
 
 const StyledWrapper = styled.div`
@@ -499,8 +500,8 @@ const HeroPage = () => {
                       Advanced Search Tools At Your<span className="text-green-700"> Fingertips</span>
                     </h2>
 
-                    <p className="text-eerie-black/70 text-lg">
-                      Analyze crime patterns, job market trends, and housing costs in seconds.
+                    <p className="text-eerie-black text-lg font-light">
+                      Analyze crime patterns, job market trends, and housing costs in <span className="font-medium text-green-700">seconds.</span>
                     </p>
 
                     {/* Animated stats */}
@@ -540,11 +541,11 @@ const HeroPage = () => {
                           viewport={{ once: true }}
                           transition={{ delay: 0.5, type: "spring" }}
                         >
-                          <CountdownNumber 
-                            start={10000} 
-                            end={15} 
-                            duration={3.0} 
-                            suffix=" ms" 
+                          <CountdownNumber
+                            start={10000}
+                            end={15}
+                            duration={3.0}
+                            suffix=" ms"
                             thresholds={{ 200: "text-green-700" }}
                             initialColor="text-red-500"
                           />
@@ -747,8 +748,8 @@ const HeroPage = () => {
                       Make <span className="text-green-700">Data-Driven</span> Real Estate Decisions
                     </h2>
 
-                    <p className="text-eerie-black/70 text-lg">
-                      Analyze 100K+ property transactions on interactive maps to uncover under-valued markets and negotiate with confidence.
+                    <p className="text-eerie-black text-lg font-light">
+                      Analyze 100K+ property transactions on interactive maps to uncover <span className="font-medium text-green-700">under-valued markets.</span>
                     </p>
 
                     {/* Feature highlights */}
@@ -809,6 +810,166 @@ const HeroPage = () => {
                 </div>
               </div>
             </div>
+
+            {/*
+            ** This is the third image section - Meet the Team
+            */}
+
+            <div className="mt-32 mb-24 relative bg-white">
+              {/* Decorative background elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-[5%] -left-[5%] w-[30%] h-[30%] bg-mint/5 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-[10%] -right-[5%] w-[25%] h-[25%] bg-mint/5 blur-[120px] rounded-full"></div>
+              </div>
+
+              <div className="relative z-10 container mx-auto px-4">
+                <div className="flex flex-col lg:flex-row items-center gap-12">
+                  {/* Left side: Marketing copy */}
+                  <div className="lg:w-[45%] space-y-8">
+                    <h2 className="text-3xl md:text-4xl font-heading font-extralight text-eerie-black mb-4 leading-tight">
+                      Less Clicking, More <span className="text-green-700">Doing</span>
+                    </h2>
+
+                    <p className="text-eerie-black text-lg font-light">
+                      Get instant answers to your questions with your own personal AI-powered assistant using state-of-the-art <span className="font-medium text-green-700">intelligent intent recognition.</span>
+                    </p>
+
+                    {/* Pain-point–focused feature highlights */}
+                    <ul className="space-y-4">
+                      <motion.li
+                        className="flex items-start gap-3"
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        <div className="text-green-700 bg-green-700/10 p-1 rounded-full mt-0.5">
+                          <Network className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-eerie-black font-medium">Instant Page Locator</p>
+                          <p className="text-eerie-black/60 text-sm">“Show me the documentation page” and it appears with one click.</p>
+                        </div>
+                      </motion.li>
+
+                      <motion.li
+                        className="flex items-start gap-3"
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.7 }}
+                      >
+                        <div className="text-green-700 bg-green-700/10 p-1 rounded-full mt-0.5">
+                          <BrainCircuit className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-eerie-black font-medium">Natural-Language Guidance</p>
+                          <p className="text-eerie-black/60 text-sm">Ask “How do I find the cost of living in California?” and get instant help.</p>
+                        </div>
+                      </motion.li>
+
+                      <motion.li
+                        className="flex items-start gap-3"
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.8 }}
+                      >
+                        <div className="text-green-700 bg-green-700/10 p-1 rounded-full mt-0.5">
+                          <OpenAI className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-eerie-black font-medium">Adaptive Context Memory</p>
+                          <p className="text-eerie-black/60 text-sm">Remembers your interactions, so you never repeat yourself.</p>
+                        </div>
+                      </motion.li>
+                    </ul>
+
+                    {/* CTA for mobile */}
+                    <div className="block lg:hidden">
+                      <button
+                        onClick={() => document.dispatchEvent(new CustomEvent('toggleChatbot'))}
+                        className="w-full bg-green-700 hover:bg-green-700/90 text-white py-3 px-6 rounded-lg flex items-center justify-center"
+                      >
+                        Get Unstuck Now
+                        <ArrowUpRight className="ml-2 h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right side: Video showcase */}
+                  <motion.div
+                    className="lg:w-[55%]"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                  >
+                    <div className="relative video-container">
+                      {/* Video border and glow layers */}
+                      <div className="video-glow"></div>
+                      <div className="video-border-bg"></div>
+                      <div className="video-white-layer"></div>
+                      <div className="video-border-layer"></div>
+
+                      <img
+                        src={video3}
+                        alt="AI Assistant Demo"
+                        className="rounded-lg relative z-10 w-full object-cover"
+                      />
+
+                      {/* “Try it!” button overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center z-20">
+                        <button
+                          onClick={() => document.dispatchEvent(new CustomEvent('toggleChatbot'))}
+                          className="relative group"
+                        >
+                          <motion.div
+                            className="w-24 h-24 rounded-full bg-mint/90 flex items-center justify-center cursor-pointer shadow-lg"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            initial={{ opacity: 0.9 }}
+                            animate={{
+                              opacity: [0.9, 1, 0.9],
+                              scale: [1, 1.05, 1],
+                              boxShadow: [
+                                '0 0 0 0 rgba(16,185,129,0.7)',
+                                '0 0 0 15px rgba(16,185,129,0)',
+                                '0 0 0 0 rgba(16,185,129,0)',
+                              ],
+                            }}
+                            transition={{
+                              repeat: Infinity,
+                              duration: 2.5,
+                            }}
+                          >
+                            <span className="text-eerie-black font-bold text-lg">Try it!</span>
+                          </motion.div>
+                          <motion.div
+                            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-eerie-black text-white px-4 py-1 rounded-full text-sm whitespace-nowrap"
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 1 }}
+                          >
+                            Click to launch chatbot
+                          </motion.div>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Video caption */}
+                    <div className="mt-4 text-center">
+                      <p className="text-eerie-black/70 text-sm">
+                        <span className="font-medium text-green-700">New Feature:</span> AI-powered chatbot for an enhanced user experience
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+
+
+
           </div>
         </div>
 
@@ -996,9 +1157,8 @@ const TechCard = ({ tech, index }) => {
       className={`relative overflow-hidden bg-eerie-black rounded-xl p-4 border border-tech-stack hover:border-${tech.color}-500/30 transition-all duration-300 group`}
       style={{
         transform: isHovered
-          ? `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${
-              mousePosition.x * -10
-            }deg) scale3d(1.02, 1.02, 1.02)`
+          ? `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${mousePosition.x * -10
+          }deg) scale3d(1.02, 1.02, 1.02)`
           : "perspective(1000px) rotateX(0) rotateY(0)",
         transition: "transform 0.2s ease",
       }}
@@ -1012,15 +1172,12 @@ const TechCard = ({ tech, index }) => {
     >
       {/* Dynamic glow effect */}
       <div
-        className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${
-          isHovered ? "opacity-60" : ""
-        }`}
+        className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${isHovered ? "opacity-60" : ""
+          }`}
         style={{
-          background: `radial-gradient(circle at ${
-            (mousePosition.x + 0.5) * 100
-          }% ${(mousePosition.y + 0.5) * 100}%, rgba(${
-            tech.color === "red" ? "255, 50, 50" : "50, 255, 100"
-          }, 0.3) 0%, transparent 70%)`,
+          background: `radial-gradient(circle at ${(mousePosition.x + 0.5) * 100
+            }% ${(mousePosition.y + 0.5) * 100}%, rgba(${tech.color === "red" ? "255, 50, 50" : "50, 255, 100"
+            }, 0.3) 0%, transparent 70%)`,
           transform: isHovered ? "scale(1.2)" : "scale(1)",
           transition: "transform 0.3s ease-out",
         }}
@@ -1030,9 +1187,8 @@ const TechCard = ({ tech, index }) => {
         className={`relative z-10 p-2 w-10 h-10 rounded-full bg-${tech.color}-900/20 mb-3 flex items-center justify-center`}
         style={{
           transform: isHovered
-            ? `translateZ(20px) translateX(${
-                mousePosition.x * 10
-              }px) translateY(${mousePosition.y * 10}px)`
+            ? `translateZ(20px) translateX(${mousePosition.x * 10
+            }px) translateY(${mousePosition.y * 10}px)`
             : "translateZ(0)",
           transition: "transform 0.2s ease",
         }}
@@ -1041,20 +1197,17 @@ const TechCard = ({ tech, index }) => {
       </div>
 
       <h3
-        className={`relative z-10 text-lg font-thin text-white mb-1 transition-colors duration-300 ${
-          isHovered ? `text-${tech.color}-400` : ""
-        }`}
+        className={`relative z-10 text-lg font-thin text-white mb-1 transition-colors duration-300 ${isHovered ? `text-${tech.color}-400` : ""
+          }`}
         style={{
           transform: isHovered
-            ? `translateZ(30px) translateX(${
-                mousePosition.x * 5
-              }px) translateY(${mousePosition.y * 5}px)`
+            ? `translateZ(30px) translateX(${mousePosition.x * 5
+            }px) translateY(${mousePosition.y * 5}px)`
             : "translateZ(0)",
           transition: "transform 0.2s ease, text-shadow 0.2s ease",
           textShadow: isHovered
-            ? `0 0 15px rgba(${
-                tech.color === "red" ? "255, 50, 50" : "50, 255, 100"
-              }, 0.5)`
+            ? `0 0 15px rgba(${tech.color === "red" ? "255, 50, 50" : "50, 255, 100"
+            }, 0.5)`
             : "none",
         }}
       >
@@ -1065,9 +1218,8 @@ const TechCard = ({ tech, index }) => {
         className="relative z-10 text-slate=700 text-xs"
         style={{
           transform: isHovered
-            ? `translateZ(15px) translateX(${
-                mousePosition.x * -3
-              }px) translateY(${mousePosition.y * -3}px)`
+            ? `translateZ(15px) translateX(${mousePosition.x * -3
+            }px) translateY(${mousePosition.y * -3}px)`
             : "translateZ(0)",
           transition: "transform 0.2s ease",
         }}
@@ -1101,9 +1253,8 @@ const TechCard = ({ tech, index }) => {
         </div>
 
         <div
-          className={`text-xs transition-colors duration-300 ${
-            isHovered ? `text-${tech.color}-400` : "text-white"
-          } group-hover:text-gray-400`}
+          className={`text-xs transition-colors duration-300 ${isHovered ? `text-${tech.color}-400` : "text-white"
+            } group-hover:text-gray-400`}
         >
           <Network className="h-3 w-3" />
         </div>
@@ -1166,21 +1317,21 @@ const CountdownNumber = ({ start, end, duration, suffix = "", thresholds = {}, i
   const [textColor, setTextColor] = useState(initialColor);
   const elementRef = useRef(null);
   const isInView = useInView(elementRef, { once: true, amount: 0.5 });
-  
+
   // Format the number with suffix
   const formattedNumber = useTransform(countRef.current, (latest) => {
     return `${Math.floor(latest)}${suffix}`;
   });
-  
+
   useEffect(() => {
     // Only start animation when in view
     if (!isInView) return;
-    
+
     // Check if we should change color based on thresholds
     const updateColor = (latest) => {
       const currentCount = Math.floor(latest);
       const thresholdKeys = Object.keys(thresholds).map(Number).sort((a, b) => b - a);
-      
+
       for (const threshold of thresholdKeys) {
         if (currentCount <= threshold) {
           setTextColor(thresholds[threshold]);
@@ -1188,10 +1339,10 @@ const CountdownNumber = ({ start, end, duration, suffix = "", thresholds = {}, i
         }
       }
     };
-    
+
     // Add event listener to monitor value changes
     const unsubscribe = countRef.current.on("change", updateColor);
-    
+
     // Start the animation
     const controls = animate(countRef.current, end, {
       duration: duration,
@@ -1201,14 +1352,14 @@ const CountdownNumber = ({ start, end, duration, suffix = "", thresholds = {}, i
         updateColor(end);
       }
     });
-    
+
     // Cleanup
     return () => {
       controls.stop();
       unsubscribe();
     };
   }, [isInView, start, end, duration, thresholds]);
-  
+
   return (
     <motion.span ref={elementRef} className={textColor}>
       {formattedNumber}

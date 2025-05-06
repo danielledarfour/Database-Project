@@ -512,15 +512,12 @@ router.post("/chatbot", async (req, res) => {
   // 3. Pick the one you need
   let functions, forceCall;
   if (intent === "where_is") {
-    console.log("Using navigation_card function");
     functions = [navigationCardDef];
     forceCall = { name: "navigation_card" };
   } else if (intent === "how_do_i") {
-    console.log("Using step_by_step_guide function");
     functions = [guideDef];
     forceCall = { name: "step_by_step_guide" };
   } else {
-    console.log(`Unknown intent: "${intent}", defaulting to auto`);
     functions = [];
     forceCall = "auto";
   }

@@ -462,6 +462,22 @@ const ChatBotUI = memo(({
   // Get intent from context
   const { intent, setIntent, isWhereIs, isHowDoI } = useIntent();
   
+  // Add event listener for toggleChatbot event
+  useEffect(() => {
+    const handleToggleChatbot = () => {
+      setIsOpen(true);
+      console.log('Chatbot opened via custom event');
+    };
+    
+    // Add event listener
+    document.addEventListener('toggleChatbot', handleToggleChatbot);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('toggleChatbot', handleToggleChatbot);
+    };
+  }, [setIsOpen]);
+  
   // Handle clicking a conversation starter
   const handleStarterClick = (starter) => {
     // Set the input text
