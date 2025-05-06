@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ChatBot from "./components/ChatBot";
 import HeroPage from "./pages/HeroPage";
 import SearchPage from "./pages/SearchPage";
 import Dashboard from "./pages/Dashboard";
@@ -36,6 +37,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <ChatBot />
       </div>
     </Router>
   );

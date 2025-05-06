@@ -3,6 +3,7 @@ const router = express.Router();
 
 const config = require("./config.json");
 const { Pool, types } = require("pg");
+const OpenAI = require("openai");
 
 
 // Override the default parsing for BIGINT (PostgreSQL type ID 20)
@@ -324,7 +325,7 @@ router.get("/housing/affordability", (req, res) => {
 // ROUTE FOR QUESTION 8 COMPLEX
 // The question:
 // For every state, which occupation titles have a combined share of the workforce
-// under X%, and average wage more than Y% above the state’s overall average wage?
+// under X%, and average wage more than Y% above the state's overall average wage?
 // ~54 sec runtime
 
 router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
@@ -455,5 +456,123 @@ router.get("/housing/:state", (req, res) => {
     }
   );
 })
+
+// ROUTE FOR CHATBOT - simplified with frontend intent
+router.post("/chatbot", async (req, res) => {
+  const { apiKey, intent, message, pageDOM } = req.body;
+
+
+  // 1. Auth
+  if (!apiKey) {
+    return res.status(401).json({ message: "API key missing", error: "api key missing" });
+  }
+
+  const openai = new OpenAI({ apiKey });
+
+  // 2. Define functions
+  const navigationCardDef = {
+    name: "navigation_card",
+    description: "Emit a UI card for a dashboard page or feature",
+    parameters: {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        description: { type: "string" },
+        link: { type: "string" }
+      },
+      required: ["title", "description", "link"],
+    }
+  };
+
+  const guideDef = {
+    name: "step_by_step_guide",
+    description: "Walk the user through a UI task step by step",
+    parameters: {
+      type: "object",
+      properties: {
+        task:      { type: "string" },
+        destination_page: { type: "string" },
+        steps: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              step_number:    { type: "integer" },
+              instruction:    { type: "string" },
+              location:       { type: "string" }
+            },
+            required: ["step_number", "instruction", "location"]
+          }
+        }
+      },
+      required: ["task", "destination_page", "steps"],
+    }
+  };
+
+  // 3. Pick the one you need
+  let functions, forceCall;
+  if (intent === "where_is") {
+    console.log("Using navigation_card function");
+    functions = [navigationCardDef];
+    forceCall = { name: "navigation_card" };
+  } else if (intent === "how_do_i") {
+    console.log("Using step_by_step_guide function");
+    functions = [guideDef];
+    forceCall = { name: "step_by_step_guide" };
+  } else {
+    console.log(`Unknown intent: "${intent}", defaulting to auto`);
+    functions = [];
+    forceCall = "auto";
+  }
+
+  try {
+    // 4. Build messages
+    const messages = [
+      {
+        role: "system",
+        content: `You are a dashboard assistant. Use the single function provided to either point users to a page (navigation_card) or walk them through steps (step_by_step_guide). Available routes to search on are:             <Route path="/" element={<HeroPage />} /><Route path="/search" element={<SearchPage />} /><Route path="/dashboard" element={<Dashboard />} /><Route path="/map" element={<MapPage />} /><Route path="/ai-insights" element={<AIInsightsPage />} /><Route path="/api-specs" element={<APISpecPage />} />{/* <Route path="/about" element={<About />} /> */}{/* 404 Error Page - catches all other routes */}<Route path="*" element={<ErrorPage />} /> `
+      },
+      { role: "system", content: `Page DOM summary: ${pageDOM}` },
+      { role: "user", content: message }
+    ];
+
+
+    // 5. Call OpenAI
+    const resp = await openai.chat.completions.create({
+      model: "gpt-4o-mini-2024-07-18",
+      messages,
+      functions,
+      function_call: forceCall,
+      max_tokens: 600
+    });
+
+    const msg = resp.choices[0].message;
+    
+
+    // 6. If it called a function, parse & return
+    if (msg.function_call) {
+      const payload = JSON.parse(msg.function_call.arguments);
+      const key = msg.function_call.name === "navigation_card" ? "card" : "guide";
+      
+      console.log(`Sending ${key} response to client`);
+      return res.json({ success: true, reply: msg.content, [key]: payload });
+    }
+
+    // 7. Otherwise just text
+    console.log("Sending text-only response to client");
+    res.json({ success: true, reply: msg.content });
+  } catch (err) {
+    console.error(err);
+    const isAuth = err.status === 401 || /api key|authentication/i.test(err.message);
+    return res.status(isAuth ? 401 : 500).json({
+      message: isAuth
+        ? "Invalid API key."
+        : "Internal chatbot error.",
+      error: err.message
+    });
+  }
+});
+
+
 
 module.exports = router;
