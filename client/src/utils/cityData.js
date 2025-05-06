@@ -202,4 +202,11 @@ const cityData = {
   }
 };
 
+// Array of all US states for dropdown selection
+export const usStates = Object.entries(cityData).map(([name, data]) => ({
+  id: data.id,
+  name,
+  cities: data.cities
+}));
+
 export default cityData; 

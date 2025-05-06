@@ -21,10 +21,10 @@ const dataQuestions = [
   },
   {
     id: 3,
-    title: "State Crime & Housing",
-    description: "Top states with highest crime incidents, job wages, and homes sold",
-    endpoint: "/state/:year",
-    inputs: ["year"],
+    title: "State Housing Market",
+    description: "Average sale prices and homes sold per property type across cities in a state",
+    endpoint: "/state/:state",
+    inputs: ["state"],
     route: "/state"
   },
   {

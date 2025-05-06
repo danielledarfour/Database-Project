@@ -15,6 +15,7 @@ import Sidebar, { dataQuestions } from "../components/Sidebar";
 import HousingQuestion from "../questions/HousingQuestion";
 import CrimeQuestion from "../questions/CrimeQuestion";
 import GenericQuestion from "../questions/GenericQuestion";
+import StateHousePrices from "../questions/StateHousePrices";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -319,6 +320,8 @@ const SearchPage = () => {
         return <CrimeQuestion />;
       case 2:
         return <HousingQuestion showMap={showMap} setShowMap={setShowMap} />;
+      case 3:
+        return <StateHousePrices showMap={showMap} setShowMap={setShowMap} />;
       default:
         // For other question types, use the generic component
         const questionData = dataQuestions.find(q => q.id === selectedQuestion);

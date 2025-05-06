@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-const Input = ({ onChange }) => {
+const Input = ({ onChange, onFilterClick }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
@@ -10,6 +10,13 @@ const Input = ({ onChange }) => {
     setInputValue(value);
     if (onChange) {
       onChange(value);
+    }
+  };
+
+  const handleFilterClick = (e) => {
+    e.stopPropagation();
+    if (onFilterClick) {
+      onFilterClick();
     }
   };
 
@@ -37,7 +44,7 @@ const Input = ({ onChange }) => {
             />
             <div id="pink-mask" />
             <div className="filterBorder" />
-            <div id="filter-icon">
+            <div id="filter-icon" onClick={handleFilterClick}>
               <svg
                 fill="none"
                 viewBox="4.8 4.56 14.832 15.408"
