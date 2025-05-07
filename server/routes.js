@@ -377,17 +377,33 @@ router.get("/jobs/:state", (req, res) => {
   state = capitalizeWords(state);
   pool.query(
     `
-    SELECT 
+    WITH state_total AS (
+      SELECT
+        SUM(j.TotalEmployment) AS TotalEmp
+      FROM
+        Job j
+      JOIN
+        State s ON j.StateID = s.StateID
+      WHERE
+        s.StateName = $1
+        AND j.OccupationTitle <> 'All Occupations'
+    )
+    SELECT
       j.OccupationTitle,
-      j.PctOfTotalEmployment
-    FROM 
+      SUM(j.TotalEmployment) AS Emp,
+      SUM(j.TotalEmployment) * 1.0 / st.TotalEmp AS TruePct
+    FROM
       Job j
-    JOIN 
-      State s ON j.StateID = s.StateID
-    WHERE 
+    JOIN
+      State s ON j.StateID = s.StateID,
+      state_total st
+    WHERE
       s.StateName = $1
-    ORDER BY 
-      j.PctOfTotalEmployment DESC
+      AND j.OccupationTitle <> 'All Occupations'
+    GROUP BY
+      j.OccupationTitle, st.TotalEmp
+    ORDER BY
+      TruePct DESC
     LIMIT 10;
     `,
     [state],
