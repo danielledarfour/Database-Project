@@ -419,20 +419,20 @@ router.get("/jobs/:state", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 10
-// The question: For a selected state, what is the total number of crimes per year?
+// The question: What are the top 20 most expensive cities for Single‑Family Residential in a given state?
 
 router.get("/crime/:state", (req, res) => {
   const { state } = req.params;
   pool.query(
     `
-    SELECT c.Year, SUM(c.Incident) AS TotalIncidents
-    FROM  Crime c JOIN State s ON c.StateID = s.StateID
-    WHERE
-      s.StateName = $1
-    GROUP BY
-      c.Year
-    ORDER BY
-      c.Year;
+    SELECT city,
+      mediansaleprice
+      FROM   housingRecord hr
+    JOIN   state s USING (stateid)
+    WHERE  s.statename = $1
+    AND  propertytype = 'Single Family Residential'
+    ORDER  BY mediansaleprice DESC
+    LIMIT 20;
     `,
     [state],
     (error, results) => {
