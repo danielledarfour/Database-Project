@@ -83,7 +83,7 @@ export default function PopularWorkforce() {
         setChartReady(false);
         
         try {
-            const response = await axios.get(`/jobs/${state}`);
+            const response = await axios.get(`/api/job/${state}`);
             
             // Ensure response.data is an array before mapping
             const responseData = Array.isArray(response.data) ? response.data : 
@@ -155,18 +155,28 @@ export default function PopularWorkforce() {
                 </div>
                 
                 {/* Search Form */}
-                <form onSubmit={handleSubmit} className="mb-6">
-                    <div className="max-w-lg mx-auto">
+                <form onSubmit={handleSubmit} className="mb-8">
+                    <div className="max-w-3xl mx-auto">
                         <label className="block text-white mb-2 text-sm">Search for a State</label>
                         <div className="relative mb-4">
-                            <div className="mb-1 flex items-center justify-center">
-                                <Input 
-                                    onChange={handleStateInputChange} 
-                                    onFilterClick={handleFilterClick}
-                                />
+                            <div className="flex items-center gap-3">
+                                <div className="flex-grow">
+                                    <Input 
+                                        onChange={handleStateInputChange} 
+                                        onFilterClick={handleFilterClick}
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="bg-mint hover:bg-mint/80 text-eerie-black font-bold py-2.5 px-6 rounded-md transition-colors whitespace-nowrap h-[42px]"
+                                    disabled={!selectedState || isLoading}
+                                >
+                                    {isLoading ? 'Loading...' : 'Find Top Occupations'}
+                                </button>
                             </div>
+                            
                             {selectedState && (
-                                <div className="mt-2 flex items-center justify-center">
+                                <div className="mt-2 flex items-center">
                                     <span className="bg-mint/20 text-mint px-2 py-1 rounded-md text-sm flex items-center">
                                         {selectedState}
                                         <button 
@@ -206,16 +216,6 @@ export default function PopularWorkforce() {
                                 </div>
                             )}
                         </div>
-                        
-                        <div className="flex justify-center">
-                            <button
-                                type="submit"
-                                className="bg-mint hover:bg-mint/80 text-eerie-black font-bold py-2 px-6 rounded-md transition-colors"
-                                disabled={!selectedState || isLoading}
-                            >
-                                {isLoading ? 'Loading...' : 'Find Top Occupations'}
-                            </button>
-                        </div>
                     </div>
                 </form>
                 
@@ -232,74 +232,119 @@ export default function PopularWorkforce() {
                     </div>
                 ) : workforceData.length > 0 ? (
                     <div ref={chartContainerRef} className="mt-8">
-                        <h3 className="text-xl font-bold text-mint mb-4">
-                            {`Top 10 Occupations in ${selectedState}`}
-                        </h3>
+                        <div className="mb-6 text-center border-b border-mint/30 pb-4">
+                            <h3 className="text-2xl font-serif font-bold text-mint">
+                                {`Top 10 Occupations in ${selectedState}`}
+                            </h3>
+                            <p className="text-white/60 mt-2 italic">
+                                Distribution of workforce across major occupation categories
+                            </p>
+                        </div>
                         
-                        {/* Horizontal Bar Chart */}
-                        <div className="mt-4 space-y-3">
-                            {workforceData.map((occupation, index) => (
-                                <div 
-                                    key={`${occupation.occupationtitle}-${index}`} 
-                                    className="bg-eerie-black/40 rounded-md p-3 hover:bg-eerie-black/60 transition-colors"
-                                >
-                                    <div className="flex justify-between items-center mb-1">
-                                        <div className="flex items-center">
-                                            <span className="text-white/70 w-6 text-right mr-3">{index + 1}.</span>
-                                            <span className="text-white font-medium">{occupation.occupationtitle}</span>
-                                        </div>
-                                        <span className="font-bold text-mint">
-                                            {formatPercentage(occupation.pctoftotalemployment)}
-                                        </span>
+                        {/* Classic Chart Design */}
+                        <div className="border-4 border-mint/20 rounded-lg p-8 bg-gradient-to-b from-eerie-black/60 to-eerie-black/80">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Left Column: Elegant Bar Chart */}
+                                <div className="space-y-6">
+                                    <div className="text-center mb-4">
+                                        <h4 className="text-lg font-serif text-mint tracking-wide">WORKFORCE COMPOSITION</h4>
+                                        <div className="w-32 h-0.5 bg-mint/30 mx-auto mt-2"></div>
                                     </div>
                                     
                                     {chartReady && (
-                                        <motion.div 
-                                            className="h-2 bg-eerie-black/60 rounded-full mt-2 overflow-hidden"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ duration: 0.5, delay: index * 0.03 }}
-                                        >
-                                            <motion.div 
-                                                className="h-full rounded-full"
-                                                style={{ 
-                                                    backgroundColor: getOccupationColor(index)
-                                                }}
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${(occupation.pctoftotalemployment / maxPercentage) * 100}%` }}
-                                                transition={{ duration: 0.7, delay: index * 0.03, ease: "easeOut" }}
-                                            />
-                                        </motion.div>
+                                        <div className="space-y-5">
+                                            {workforceData.map((occupation, index) => (
+                                                <div key={`bar-${index}`} className="relative">
+                                                    <div className="flex items-center mb-1.5">
+                                                        <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3" 
+                                                            style={{ backgroundColor: getOccupationColor(index) }}>
+                                                            <span className="text-eerie-black font-bold text-xs">{index + 1}</span>
+                                                        </div>
+                                                        <span className="text-white font-serif text-sm tracking-wide">
+                                                            {occupation.occupationtitle}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    {/* Percentage value */}
+                                                    <div className="mb-2.5">
+                                                        <span className="bg-eerie-black/80 px-2 py-0.5 rounded text-mint font-bold text-xs border border-mint/20">
+                                                            {formatPercentage(occupation.truepct * 100 || occupation.pctoftotalemployment)}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    {/* Bar */}
+                                                    <div className="h-6 bg-eerie-black rounded-sm border border-mint/20 overflow-hidden">
+                                                        <motion.div 
+                                                            className="h-full"
+                                                            style={{ backgroundColor: getOccupationColor(index) }}
+                                                            initial={{ width: 0 }}
+                                                            animate={{ width: `${(occupation.truepct || occupation.pctoftotalemployment / 100) * 100}%` }}
+                                                            transition={{ duration: 1, delay: index * 0.15, ease: "circOut" }}
+                                                        >
+                                                        </motion.div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     )}
                                 </div>
-                            ))}
-                        </div>
-                        
-                        {/* Workforce Insights */}
-                        {workforceData.length > 0 && (
-                            <div className="mt-8 bg-eerie-black/50 p-6 rounded-lg border border-mint/20">
-                                <h4 className="text-lg font-medium text-mint mb-3">Workforce Insights</h4>
                                 
-                                <div className="text-white/80 space-y-3">
-                                    <p>
-                                        The top occupation in {selectedState} ({workforceData[0]?.occupationtitle}) 
-                                        makes up {formatPercentage(workforceData[0]?.pctoftotalemployment)} of the total workforce.
-                                    </p>
+                                {/* Right Column: Employment Figures in Classic Table */}
+                                <div className="border border-mint/30 rounded bg-eerie-black/30">
+                                    <div className="p-4 border-b border-mint/20 text-center">
+                                        <h4 className="text-lg font-serif text-mint tracking-wide">EMPLOYMENT FIGURES</h4>
+                                    </div>
                                     
-                                    <p>
-                                        The top 3 occupations combined account for {formatPercentage(
-                                            workforceData.slice(0, 3).reduce((sum, item) => sum + (item.pctoftotalemployment || 0), 0)
-                                        )} of all jobs in the state.
-                                    </p>
-                                    
-                                    {workforceData[0]?.pctoftotalemployment > 5 && (
-                                        <p className="text-mint">
-                                            This is a significant concentration in a single occupation, suggesting this industry is a major economic driver for {selectedState}.
-                                        </p>
-                                    )}
+                                    <div className="p-4">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-mint/20">
+                                                    <th className="text-left py-2 text-white/80 font-serif text-sm">Occupation Category</th>
+                                                    <th className="text-right py-2 text-white/80 font-serif text-sm">Employees</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {workforceData.map((occupation, index) => (
+                                                    <tr key={`table-${index}`} className="border-b border-mint/10">
+                                                        <td className="py-3 text-white/90 font-serif text-sm">
+                                                            <div className="flex items-center">
+                                                                <div className="w-3 h-3 rounded-sm mr-2" style={{ backgroundColor: getOccupationColor(index) }}></div>
+                                                                {occupation.occupationtitle.split(' ').slice(0, 3).join(' ')}
+                                                                {occupation.occupationtitle.split(' ').length > 3 ? '...' : ''}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3 text-right text-mint font-serif font-medium">
+                                                            {new Intl.NumberFormat('en-US').format(occupation.emp || 0)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                        
+                                        {/* Summary */}
+                                        <div className="mt-6 p-4 bg-mint/5 border border-mint/20 rounded">
+                                            <div className="text-white/90 font-serif text-sm leading-relaxed">
+                                                <p className="mb-2">
+                                                    The top occupation in <span className="font-medium text-mint">{selectedState}</span> employs{' '}
+                                                    <span className="font-medium text-mint">
+                                                        {new Intl.NumberFormat('en-US').format(workforceData[0]?.emp || 0)}
+                                                    </span> workers, representing{' '}
+                                                    <span className="font-medium text-mint">
+                                                        {formatPercentage(workforceData[0]?.truepct * 100 || workforceData[0]?.pctoftotalemployment)}
+                                                    </span> of the total workforce.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        )}
+                            
+                            {/* Ornamental Footer */}
+                            <div className="mt-8 flex justify-center">
+                                <div className="w-24 h-1 bg-mint/40"></div>
+                            </div>
+                        </div>
+
                     </div>
                 ) : selectedState && !isLoading && (
                     <div className="bg-eerie-black/50 border border-mint/20 rounded-lg p-6 text-center text-white/70">

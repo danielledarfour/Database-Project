@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import cityData from "../../utils/cityData";
 import Loader from "../../ui/Loader";
+import Input from "../../ui/Input";
 
 // All US states for dropdown
 const usStates = Object.entries(cityData).map(([name, data]) => ({
@@ -30,6 +31,9 @@ const decades = {
 const CrimeQuestion = () => {
   // State for form inputs
   const [selectedState, setSelectedState] = useState("");
+  const [stateSearchTerm, setStateSearchTerm] = useState("");
+  const [showStateSuggestions, setShowStateSuggestions] = useState(false);
+  const [filteredStates, setFilteredStates] = useState([]);
   const [selectedYear, setSelectedYear] = useState("");
   const [isYearPickerOpen, setIsYearPickerOpen] = useState(false);
   const yearPickerRef = useRef(null);
@@ -41,6 +45,22 @@ const CrimeQuestion = () => {
   const [error, setError] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [showMap, setShowMap] = useState(true);
+
+  // Filter states based on search term
+  useEffect(() => {
+    if (stateSearchTerm && stateSearchTerm !== selectedState) {
+      const filtered = usStates
+        .filter((state) => 
+          state.name.toLowerCase().includes(stateSearchTerm.toLowerCase())
+        )
+        .slice(0, 5); // Limit to 5 results
+      setFilteredStates(filtered);
+      setShowStateSuggestions(filtered.length > 0);
+    } else {
+      setFilteredStates([]);
+      setShowStateSuggestions(false);
+    }
+  }, [stateSearchTerm, selectedState]);
 
   // Close year picker when clicking outside
   useEffect(() => {
@@ -55,6 +75,27 @@ const CrimeQuestion = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Handle state input change
+  const handleStateInputChange = (value) => {
+    setStateSearchTerm(value);
+    setShowStateSuggestions(true);
+    if (!value) {
+      setSelectedState("");
+    }
+  };
+
+  // Handle state selection from suggestions
+  const handleStateSelect = (state) => {
+    setSelectedState(state.name);
+    setStateSearchTerm(state.name);
+    setShowStateSuggestions(false);
+  };
+
+  // Handle filter click
+  const handleFilterClick = () => {
+    setShowStateSuggestions(true);
+  };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -125,27 +166,74 @@ const CrimeQuestion = () => {
   return (
     <>
       {/* Crime Search Form */}
-      <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 items-end">
-        <div className="lg:col-span-3">
+      <div className="max-w-xl mx-auto space-y-6">
+        <div className="relative">
           <label className="block text-sm font-medium text-white mb-1">
-            Select State
+            Search for a State
           </label>
-          <select
-            value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
-            className="w-full p-2 rounded-md bg-eerie-black text-white border border-mint focus:outline-none focus:ring-2 focus:ring-mint"
-            required
-          >
-            <option value="">Select a state</option>
-            {usStates.map((state) => (
-              <option key={state.id} value={state.name}>
-                {state.name}
-              </option>
-            ))}
-          </select>
+          <Input 
+            onChange={handleStateInputChange} 
+            onFilterClick={handleFilterClick}
+          />
+          
+          {/* Selected State Indicator */}
+          {selectedState && (
+            <div className="mt-2 flex items-center">
+              <span className="bg-mint/20 text-mint px-2 py-1 rounded-md text-sm flex items-center">
+                {selectedState}
+                <button 
+                  onClick={() => {
+                    setSelectedState("");
+                    setStateSearchTerm("");
+                  }}
+                  className="ml-2 text-mint hover:text-white"
+                  aria-label="Clear selected state"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            </div>
+          )}
+          
+          {/* State Suggestions */}
+          <AnimatePresence>
+            {showStateSuggestions && stateSearchTerm && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute z-50 w-full bg-eerie-black border border-mint/30 rounded-md shadow-lg mt-1"
+              >
+                <ul>
+                  {filteredStates.length > 0 ? (
+                    filteredStates.map((state) => (
+                      <li 
+                        key={state.id}
+                        className="px-4 py-2.5 hover:bg-mint/10 cursor-pointer border-b border-mint/20 flex items-center"
+                        onClick={() => handleStateSelect(state)}
+                      >
+                        <div className="text-mint mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <span className="text-white">{state.name}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="px-4 py-2.5 text-white/60">
+                      No states found
+                    </li>
+                  )}
+                </ul>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         
-        <div className="lg:col-span-3 relative" ref={yearPickerRef}>
+        <div className="relative" ref={yearPickerRef}>
           <label className="block text-sm font-medium text-white mb-1">
             Select Year
           </label>
@@ -220,7 +308,7 @@ const CrimeQuestion = () => {
           </AnimatePresence>
         </div>
 
-        <div className="lg:col-span-2">
+        <div className="mt-4">
           <button
             onClick={handleSubmit}
             className="w-full bg-mint hover:bg-mint/90 text-white py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center"
@@ -251,7 +339,7 @@ const CrimeQuestion = () => {
                 Loading...
               </>
             ) : (
-              "View Top Crime Cities"
+              "Search"
             )}
           </button>
         </div>

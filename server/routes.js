@@ -96,7 +96,11 @@ router.get("/crime/:id", (req, res) => {
   );
 });
 
-function capitalizeWords(str) {
+
+function formatStateName(str) {
+  // Replace underscores with actual spaces
+  str = str.replace(/_/g, ' ');
+  // Capitalize each word
   return str.replace(/\b\w/g, char => char.toUpperCase());
 }
 
@@ -106,7 +110,7 @@ router.get("/crime/:state/:year", (req, res) => {
   let { state, year } = req.params;
   // NOTE: CALLBACK STYLE POOL QUERY DOESN'T NEED ASYNC/AWAIT
   // ensure state is camel case
-  state = state.charAt(0).toUpperCase() + state.slice(1);
+  state = formatStateName(state);
   pool.query(
     `SELECT c.city, SUM(c.Incident) AS TotalIncidents FROM Crime c
     JOIN State s ON c.StateID = s.StateID WHERE s.StateName = $1 AND
@@ -151,6 +155,9 @@ router.get("/housing/:state/:city/:propertyType", (req, res) => {
 
 router.get("/state/:state", (req, res) => {
   let { state } = req.params;
+  // capitalize the state name
+  state = formatStateName(state);
+
   pool.query(
     `
     SELECT 
@@ -218,8 +225,10 @@ router.get("/housing/:state/:startYear/:endYear", (req, res) => {
 // Given a state and a year, what are the average wages for each occupation in that state considering 
 // that the state has both the housing and crime data for such a year.
 
-router.get("/state/:state/:year/", (req, res) => {
-  let { year, pct } = req.params;
+router.get("/state/:state/:year", (req, res) => {
+  let { state, year } = req.params;
+  // capitalize the state name
+  state = formatStateName(state);
   pool.query(
     `
     SELECT 
@@ -239,7 +248,7 @@ router.get("/state/:state/:year/", (req, res) => {
     GROUP BY j.OccupationTitle
     ORDER BY AvgWage DESC;
     `,
-    [year, pct],
+    [state, year],
     (error, results) => {
       if (error) {
         console.log(error);
@@ -257,7 +266,7 @@ router.get("/five-years/:state", (req, res) => {
   let { state } = req.params;
 
   // ensure state is camel case
-  state = state.charAt(0).toUpperCase() + state.slice(1);
+  state = formatStateName(state);
   pool.query(
     `
     SELECT c.Year, SUM(c.Incident) AS TotalIncidents
@@ -328,8 +337,10 @@ router.get("/housing/affordability", (req, res) => {
 // under X%, and average wage more than Y% above the state's overall average wage?
 // ~54 sec runtime
 
-router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
+router.get("/job/:pctWorkforce/:pctWage", (req, res) => {
   let { pctWorkforce, pctWage } = req.params;
+  // console log the params
+  console.log(pctWorkforce, pctWage);
   pool.query(
     `
     WITH Occupations AS (
@@ -371,10 +382,10 @@ router.get("/job/:pct-workforce/:pct-wage", (req, res) => {
 
 // ROUTE FOR QUESTION 9
 // For a given state, which occupation titles have the highest percentage of the workforce?
-router.get("/jobs/:state", (req, res) => {
+router.get("/job/:state", (req, res) => {
   let { state } = req.params;
   // Properly capitalize state name
-  state = capitalizeWords(state);
+  state = formatStateName(state);
   pool.query(
     `
     WITH state_total AS (
@@ -419,10 +430,10 @@ router.get("/jobs/:state", (req, res) => {
 });
 
 // ROUTE FOR QUESTION 10
-// The question: What are the top 20 most expensive cities for Single‑Family Residential in a given state?
+// The question: What are the top 20 most expensive cities for a given property type   in a given state?
 
-router.get("/crime/:state", (req, res) => {
-  const { state } = req.params;
+router.get("/housing/:state/:propertyType", (req, res) => {
+  const { state, propertyType } = req.params;
   pool.query(
     `
     SELECT city,
@@ -430,11 +441,11 @@ router.get("/crime/:state", (req, res) => {
       FROM   housingRecord hr
     JOIN   state s USING (stateid)
     WHERE  s.statename = $1
-    AND  propertytype = 'Single Family Residential'
+    AND  propertytype = $2
     ORDER  BY mediansaleprice DESC
     LIMIT 20;
     `,
-    [state],
+    [state, propertyType],
     (error, results) => {
       if (error) {
         console.log(error);
@@ -452,7 +463,7 @@ router.get("/crime/:state", (req, res) => {
 router.get("/housing/:state", (req, res) => {
   let { state } = req.params;
   // Properly capitalize state name
-  state = capitalizeWords(state);
+  state = formatStateName(state);
   pool.query(
     `SELECT city, mediansaleprice
     FROM housingRecord hr

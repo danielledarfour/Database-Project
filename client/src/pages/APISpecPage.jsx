@@ -197,11 +197,11 @@ const APISpecPage = () => {
             ]
         },
         {
-            id: 'city-property-stats',
+            id: 'state-housing-market',
             routeNumber: 3,
             method: 'GET',
-            path: '/housing/city‑stats/:state',
-            description: 'For every city in the specified U.S. state, returns the average sale price and the total number of homes sold, broken out by property type. Results are ordered from the busiest housing markets to the least, based on homes sold.',
+            path: '/state/:state',
+            description: 'For every city in the specified U.S. state, returns the average sale price and the total number of homes sold, broken out by property type.',
             routeParams: [
                 {
                     name: 'state',
@@ -216,31 +216,31 @@ const APISpecPage = () => {
                 {
                     name: 'city',
                     type: 'string',
-                    description: 'City name (h.City).'
+                    description: 'City name.'
                 },
                 {
                     name: 'propertyType',
                     type: 'string',
-                    description: 'Category of dwelling (h.PropertyType).'
+                    description: 'Category of dwelling.'
                 },
                 {
                     name: 'avgSalePrice',
                     type: 'number',
-                    description: 'Average of MedianSalePrice, rounded to two decimals (AvgSalePrice).'
+                    description: 'Average of MedianSalePrice, rounded to two decimals.'
                 },
                 {
                     name: 'totalHomesSold',
                     type: 'integer',
-                    description: 'Total count of homes sold in the selected period (TotalHomesSold).'
+                    description: 'Total count of homes sold in the state.'
                 }
             ]
         },
         {
-            id: 'crime-housing-stats',
+            id: 'housing-metrics-timespan',
             routeNumber: 4,
             method: 'GET',
-            path: '/crime‑housing/:state/:year',
-            description: 'For the selected U.S. state and calendar year, returns each city\'s average number of crime incidents and the average home‑sale price, broken out by property type. Results are ordered from the highest to lowest average crime count.',
+            path: '/housing/:state/:startYear/:endYear',
+            description: 'Returns housing metrics across a specified year range for a given state, including crime incidents, sale prices, and occupation data.',
             routeParams: [
                 {
                     name: 'state',
@@ -249,9 +249,15 @@ const APISpecPage = () => {
                     required: true
                 },
                 {
-                    name: 'year',
+                    name: 'startYear',
                     type: 'integer',
-                    description: '4 digit year.',
+                    description: 'Starting year for the range.',
+                    required: true
+                },
+                {
+                    name: 'endYear',
+                    type: 'integer',
+                    description: 'Ending year for the range.',
                     required: true
                 }
             ],
@@ -261,22 +267,42 @@ const APISpecPage = () => {
                 {
                     name: 'city',
                     type: 'string',
-                    description: 'City name (c.City).'
+                    description: 'City name.'
                 },
                 {
-                    name: 'propertyType',
+                    name: 'stateName',
                     type: 'string',
-                    description: 'Dwelling category (h.PropertyType).'
+                    description: 'State name.'
+                },
+                {
+                    name: 'stateId',
+                    type: 'integer',
+                    description: 'State identifier.'
+                },
+                {
+                    name: 'occupationTitle',
+                    type: 'string',
+                    description: 'Job title.'
                 },
                 {
                     name: 'avgIncidents',
                     type: 'number',
-                    description: 'Mean incident count for that city/year (AvgIncidents).'
+                    description: 'Average crime incidents.'
                 },
                 {
                     name: 'avgSalePrice',
                     type: 'number',
-                    description: 'Mean of median sale prices, rounded to two decimals (AvgSalePrice).'
+                    description: 'Average property sale price.'
+                },
+                {
+                    name: 'avgEmployment',
+                    type: 'number',
+                    description: 'Average employment wage.'
+                },
+                {
+                    name: 'numPropertyTypes',
+                    type: 'integer',
+                    description: 'Number of property types in the dataset.'
                 }
             ]
         },
@@ -284,7 +310,7 @@ const APISpecPage = () => {
             id: 'occupation-wages',
             routeNumber: 5,
             method: 'GET',
-            path: '/wages/:state/:year',
+            path: '/state/:state/:year',
             description: 'Returns the average annual wage for every occupation title in the specified U.S. state for a given calendar year – but only if that state has both housing and crime records for that same year.',
             routeParams: [
                 {
@@ -306,12 +332,12 @@ const APISpecPage = () => {
                 {
                     name: 'occupationTitle',
                     type: 'string',
-                    description: 'Job/role title (j.OccupationTitle).'
+                    description: 'Job/role title.'
                 },
                 {
                     name: 'avgWage',
                     type: 'number',
-                    description: 'Rounded mean annual wage for that occupation in the given year (AvgWage).'
+                    description: 'Rounded mean annual wage for that occupation in the given year.'
                 }
             ]
         },
@@ -319,8 +345,8 @@ const APISpecPage = () => {
             id: 'crime-trend',
             routeNumber: 6,
             method: 'GET',
-            path: '/crime/:state',
-            description: 'Returns the total number of reported crime incidents for each of the past five calendar years in the specified U.S. state. The array is sorted by year (oldest → newest).',
+            path: '/five-years/:state',
+            description: 'Returns the total number of reported crime incidents for each year in the specified U.S. state. The array is sorted by year (oldest → newest).',
             routeParams: [
                 {
                     name: 'state',
@@ -335,7 +361,7 @@ const APISpecPage = () => {
                 {
                     name: 'year',
                     type: 'integer',
-                    description: '4‑digit calendar year (c.Year).'
+                    description: '4‑digit calendar year.'
                 },
                 {
                     name: 'totalIncidents',
@@ -349,7 +375,7 @@ const APISpecPage = () => {
             routeNumber: 7,
             method: 'GET',
             path: '/housing/affordability',
-            description: 'Returns, for every U.S. state, the median single‑family home‑sale price, the average annual wage, and the resulting price‑to‑income ratio (median price ÷ average wage).',
+            description: 'Returns, for every U.S. state, the median home‑sale price, the average annual wage, and the resulting price‑to‑income ratio (median price ÷ average wage).',
             routeParams: [],
             queryParams: [],
             returnType: 'JSON array',
@@ -357,17 +383,17 @@ const APISpecPage = () => {
                 {
                     name: 'stateName',
                     type: 'string',
-                    description: 'Name of the state (s.StateName).'
+                    description: 'Name of the state.'
                 },
                 {
                     name: 'medianPrice',
                     type: 'number',
-                    description: 'State‑wide median sale price for homes (sp.median_price).'
+                    description: 'State‑wide median sale price for homes.'
                 },
                 {
                     name: 'avgWage',
                     type: 'number',
-                    description: 'Average annual wage across all occupations (sw.avg_wage).'
+                    description: 'Average annual wage across all occupations.'
                 },
                 {
                     name: 'priceToIncomeRatio',
@@ -377,20 +403,20 @@ const APISpecPage = () => {
             ]
         },
         {
-            id: 'rare-high-pay-occupations',
+            id: 'workforce-analysis',
             routeNumber: 8,
             method: 'GET',
-            path: '/occupations/:maxPct/:wageAbovePct',
-            description: 'For each state, returns all occupation titles that have a combined workforce share below maxPct% and average wage above wageAbovePct% of the state average.',
+            path: '/job/:pctWorkforce/:pctWage',
+            description: 'For each state, returns all occupation titles that have a combined workforce share below pctWorkforce% and average wage above pctWage% of the state average.',
             routeParams: [
                 {
-                    name: 'maxPct',
+                    name: 'pctWorkforce',
                     type: 'number',
                     description: '% upper bound on workforce share (e.g., 2.5 for 2.5%).',
                     required: true
                 },
                 {
-                    name: 'wageAbovePct',
+                    name: 'pctWage',
                     type: 'number',
                     description: 'Minimum percentage the occupation\'s wage must exceed the state average (e.g., 10 for 10%).',
                     required: true
@@ -400,29 +426,34 @@ const APISpecPage = () => {
             returnType: 'JSON array',
             returnParams: [
                 {
+                    name: 'stateId',
+                    type: 'integer',
+                    description: 'State identifier.'
+                },
+                {
                     name: 'stateName',
                     type: 'string',
-                    description: 'Name of the state (s.StateName).'
+                    description: 'Name of the state.'
                 },
                 {
                     name: 'occupationTitle',
                     type: 'string',
-                    description: 'Job/role title (j.OccupationTitle).'
+                    description: 'Job/role title.'
                 },
                 {
                     name: 'workforcePct',
                     type: 'number',
-                    description: 'Summed % share of state employment (WorkforcePct).'
+                    description: 'Summed % share of state employment.'
                 },
                 {
                     name: 'occupationAvgWage',
                     type: 'number',
-                    description: 'Mean annual wage for that occupation in the state (OccupationAvgWage).'
+                    description: 'Mean annual wage for that occupation in the state.'
                 },
                 {
                     name: 'amountAboveStateAvg',
                     type: 'number',
-                    description: 'Dollars the occupation\'s wage sits above the state average (AmountAboveStateAvg).'
+                    description: 'Dollars the occupation\'s wage sits above the state average.'
                 }
             ]
         },
@@ -430,8 +461,8 @@ const APISpecPage = () => {
             id: 'top-jobs',
             routeNumber: 9,
             method: 'GET',
-            path: '/jobs/:state',
-            description: 'Returns the ten occupations with the highest percentage share of total employment in the specified U.S. state.',
+            path: '/job/:state',
+            description: 'Returns the top occupations with the highest percentage share of total employment in the specified U.S. state.',
             routeParams: [
                 {
                     name: 'state',
@@ -446,21 +477,61 @@ const APISpecPage = () => {
                 {
                     name: 'occupationTitle',
                     type: 'string',
-                    description: 'Job/role title (j.OccupationTitle).'
+                    description: 'Job/role title.'
                 },
                 {
-                    name: 'pctOfTotalEmployment',
+                    name: 'emp',
+                    type: 'integer',
+                    description: 'Number of employees in the occupation.'
+                },
+                {
+                    name: 'truePct',
                     type: 'number',
-                    description: '% of the state\'s jobs represented by this occupation (j.PctOfTotalEmployment).'
+                    description: 'True percentage of the state\'s jobs represented by this occupation.'
                 }
             ]
         },
         {
-            id: 'top-single-family-prices',
+            id: 'top-cities-by-property-type',
             routeNumber: 10,
             method: 'GET',
-            path: '/housing/top‑sf/:state',
-            description: 'Returns the 20 cities with the highest median sale price for "Single Family Residential" homes in the specified U.S. state, sorted descendingly.',
+            path: '/housing/:state/:propertyType',
+            description: 'Returns the top 20 cities with the highest median sale price for a specific property type in the specified U.S. state.',
+            routeParams: [
+                {
+                    name: 'state',
+                    type: 'string',
+                    description: 'Full state name.',
+                    required: true
+                },
+                {
+                    name: 'propertyType',
+                    type: 'string',
+                    description: 'Type of property (e.g., "Single Family Residential", "Condo")',
+                    required: true
+                }
+            ],
+            queryParams: [],
+            returnType: 'JSON array',
+            returnParams: [
+                {
+                    name: 'city',
+                    type: 'string',
+                    description: 'City name.'
+                },
+                {
+                    name: 'medianSalePrice',
+                    type: 'number',
+                    description: 'Median closing price for the specified property type.'
+                }
+            ]
+        },
+        {
+            id: 'top-single-family-cities',
+            routeNumber: 11,
+            method: 'GET',
+            path: '/housing/:state',
+            description: 'Returns the 20 cities with the highest median sale price for "Single Family Residential" homes in the specified U.S. state.',
             routeParams: [
                 {
                     name: 'state',
@@ -475,12 +546,12 @@ const APISpecPage = () => {
                 {
                     name: 'city',
                     type: 'string',
-                    description: 'City name (hr.City).'
+                    description: 'City name.'
                 },
                 {
                     name: 'medianSalePrice',
                     type: 'number',
-                    description: 'Median closing price for single‑family homes (hr.MedianSalePrice).'
+                    description: 'Median closing price for single‑family homes.'
                 }
             ]
         }

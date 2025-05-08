@@ -1,20 +1,14 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
-import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Input from "../ui/Input";
 // Lazy load the Hyperspeed component
 const Hyperspeed = lazy(() => import("../ui/Hyperspeed"));
 import styled from "styled-components";
-import axios from "axios";
-import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import cityData from "../utils/cityData";
 import Sidebar, { dataQuestions } from "../components/Sidebar";
 
 // Import question components
 import HousingQuestion from "../questions/Question2/HousingQuestion";
 import CrimeQuestion from "../questions/Question1/CrimeQuestion";
-import GenericQuestion from "../questions/GenericQuestion";
 import StateHousePrices from "../questions/Question3/StateHousePrices";
 import AverageWageQuestion from "../questions/Question5/AverageWageQuestion";
 import CrimeIncidentsQuestion from "../questions/Question6/CrimeIncidentsQuestion";
@@ -22,6 +16,7 @@ import AffordabilityQuestion from "../questions/Question7/AffordabilityQuestion"
 import OccupationQuestion from "../questions/Question8/OccupationQuestion";
 import PopularWorkforce from "../questions/Question9/PopularWorkforce";
 import StateHousing from "../questions/Question10/StateHousing";
+import HousingCrimeQuestion from "../questions/Question4/HousingCrimeQuestion";
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -216,6 +211,8 @@ const SearchPage = () => {
         return <HousingQuestion showMap={showMap} setShowMap={setShowMap} />;
       case 3:
         return <StateHousePrices showMap={showMap} setShowMap={setShowMap} />;
+      case 4:
+        return <HousingCrimeQuestion />;
       case 5:
         return <AverageWageQuestion />;
       case 6:
@@ -229,9 +226,7 @@ const SearchPage = () => {
       case 10:
         return <StateHousing />;
       default:
-        // For other question types, use the generic component
-        const questionData = dataQuestions.find(q => q.id === selectedQuestion);
-        return <GenericQuestion questionData={questionData} />;
+        return <ErrorPage />;
     }
   };
 

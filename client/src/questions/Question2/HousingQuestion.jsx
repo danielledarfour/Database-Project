@@ -46,7 +46,7 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
 
   // Filter states based on search query
   useEffect(() => {
-    if (searchQuery) {
+    if (searchQuery && searchQuery !== selectedState) {
       const filtered = usStates
         .filter((state) => 
           state.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,7 +58,7 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
       setFilteredStates([]);
       setShowSearchResults(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, selectedState]);
 
   // Fetch cities when state changes using our cityData utility
   useEffect(() => {
@@ -238,6 +238,30 @@ const HousingQuestion = ({ showMap, setShowMap }) => {
             className="bg-transparent border-mint/50 focus:border-mint"
             overrideStyles={true}
           />
+          
+          {/* Selected State Indicator */}
+          {selectedState && (
+            <div className="mt-2 flex items-center">
+              <span className="bg-mint/20 text-mint px-2 py-1 rounded-md text-sm flex items-center">
+                {selectedState}
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedState("");
+                    setSearchQuery("");
+                    setAvailableCities([]);
+                    setSelectedCity("");
+                  }}
+                  className="ml-2 text-mint hover:text-white"
+                  aria-label="Clear selected state"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            </div>
+          )}
           
           {/* State Search Results Dropdown */}
           <AnimatePresence>

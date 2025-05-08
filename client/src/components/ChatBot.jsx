@@ -489,7 +489,7 @@ const ChatBotUI = memo(({
     
     // Submit it immediately if valid
     if (isApiKeyValid) {
-      // We need to manually call handleSubmit with this text and intent
+      // We need to manually call handleSubmitWithIntent with this text and intent
       handleSubmitWithIntent(starter.text, starter.intent);
     }
   };
@@ -654,7 +654,7 @@ const ChatBotUI = memo(({
     <>
       {/* Floating chat button */}
       <motion.div 
-        className="fixed top-6 right-6 z-50 flex flex-col items-end"
+        className="fixed bottom-6 right-6 z-50 flex flex-col items-end"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -686,7 +686,7 @@ const ChatBotUI = memo(({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed top-24 right-6 w-80 sm:w-96 bg-eerie-black rounded-lg shadow-2xl overflow-hidden z-50 flex flex-col"
+            className="fixed bottom-6 right-6 w-80 sm:w-96 bg-eerie-black rounded-lg shadow-2xl overflow-hidden z-50 flex flex-col"
             initial={{ opacity: 0, y: -20, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, y: -20, height: 0 }}

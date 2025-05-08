@@ -43,15 +43,6 @@ export default function AffordabilityQuestion() {
                ratio < 3.0 ? '#ef4444' : '#7f1d1d';
     };
 
-    // Enhanced state data with coordinates for the map
-    const enhancedStateData = useMemo(() => {
-        // Use coordinates directly from the cityData/usStates
-        return usStates.map(state => ({
-            ...state,
-            // Fallback to US center coordinates if not found
-            center: state.center || { lat: 39.8097343, lng: -98.5556199 }
-        }));
-    }, []);
 
     // Fetch affordability data on component mount
     useEffect(() => {

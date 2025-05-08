@@ -5,14 +5,7 @@ import axios from "axios";
 import styled from "styled-components";
 import { usStates } from "../../utils/cityData";
 import Loader from "../../ui/Loader";
-// Property type images (these are placeholders - replace with actual images)
-const propertyTypeImages = {
-  "Single Family Residential": "https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-  "Condo/Co-op": "https://images.unsplash.com/photo-1628133287836-40bd5453bed1?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "Townhouse": "https://images.unsplash.com/photo-1577593980495-6e7f66a54ee6?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "Multi-Family (2-4 Unit)": "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "All Residential": "https://plus.unsplash.com/premium_photo-1680185462024-449a2abaec28?q=80&w=3864&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-};
+import propertyTypeImages from "../../utils/houseToImage";
 
 const StateHousePrices = ({ showMap = true, setShowMap }) => {
   // States for the component
@@ -145,6 +138,7 @@ const StateHousePrices = ({ showMap = true, setShowMap }) => {
     setSelectedState(state.name);
     setSearchQuery(state.name);
     setShowSearchResults(false);
+    fetchHousingData(state.name);
   };
 
   // Handle input change
@@ -221,6 +215,28 @@ const StateHousePrices = ({ showMap = true, setShowMap }) => {
             <div className="mb-2">
             <Input onChange={handleInputChange} />
             </div>
+            
+            {/* Selected State Indicator */}
+            {selectedState && (
+                <div className="mt-2 mb-3 flex items-center">
+                    <span className="bg-mint/20 text-mint px-2 py-1 rounded-md text-sm flex items-center">
+                        {selectedState}
+                        <button 
+                            onClick={() => {
+                                setSelectedState("");
+                                setSearchQuery("");
+                                setHousingData([]);
+                            }}
+                            className="ml-2 text-mint hover:text-white"
+                            aria-label="Clear selected state"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+            )}
             
             {/* Search Results Dropdown */}
             <AnimatePresence>

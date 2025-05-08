@@ -31,7 +31,7 @@ function App() {
             <Route path="/map" element={<MapPage />} />
             <Route path="/ai-insights" element={<AIInsightsPage />} />
             <Route path="/api-specs" element={<APISpecPage />} />
-            {/* <Route path="/about" element={<About />} /> */}
+            <Route path="/about" element={<About />} />
             {/* 404 Error Page - catches all other routes */}
             <Route path="*" element={<ErrorPage />} />
           </Routes>

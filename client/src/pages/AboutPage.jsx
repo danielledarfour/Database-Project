@@ -39,7 +39,7 @@ const AboutPage = () => {
               Our Story
             </h1>
             <p className="text-lg text-white/80 max-w-2xl mx-auto">
-              Learn about our mission to make crime and employment data accessible and actionable for everyone.
+              Learn about our mission to make crime, housing, and employment data accessible and actionable for everyone.
             </p>
           </div>
         </div>
@@ -57,10 +57,10 @@ const AboutPage = () => {
               Our Mission
             </h2>
             <p className="text-gray-700 mb-4">
-              At InvestiGator, we're dedicated to transforming complex crime and employment data into accessible insights that drive informed decision-making for policy makers, urban planners, and researchers.
+              At InvestiGator, we're dedicated to transforming complex crime, housing, and employment data into accessible insights that drive informed decision-making for policy makers, urban planners, and researchers.
             </p>
             <p className="text-gray-700 mb-4">
-              Our goal is to provide a comprehensive platform that allows users to explore the intricate relationships between crime statistics and employment trends across the United States, helping communities create safer and more prosperous environments.
+              Our goal is to provide a comprehensive platform that allows users to explore the intricate relationships between crime statistics, housing, and employment trends across the United States, helping communities create safer and more prosperous environments.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <div className="flex items-center">
@@ -111,7 +111,7 @@ const AboutPage = () => {
               Our Team
             </h2>
             <p className="text-gray-700 max-w-2xl mx-auto">
-              We're a passionate group of data scientists, designers, and developers committed to creating tools that make a difference.
+              Meet the team behind InvestiGator.
             </p>
           </div>
           

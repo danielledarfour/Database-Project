@@ -29,6 +29,14 @@ const dataQuestions = [
     route: "/state"
   },
   {
+    id: 4,
+    title: "Housing Metrics Over Time",
+    description: "Housing metrics across a year range for a given state",
+    endpoint: "/housing/:state/:startYear/:endYear",
+    inputs: ["state", "startYear", "endYear"],
+    route: "/housing"
+  },
+  {
     id: 5,
     title: "Average Wages by Occupation",
     description: "Average wages for occupations in a state for a given year",
@@ -46,32 +54,40 @@ const dataQuestions = [
   },
   {
     id: 7,
-    title: "Affordability",
-    description: "Affordability of a location over time",
-    endpoint: "/affordability/:state/:city",
-    inputs: ["state", "city"],
-    route: "/affordability"
+    title: "Housing Affordability",
+    description: "Affordability metrics across all states",
+    endpoint: "/housing/affordability",
+    inputs: [],
+    route: "/housing/affordability"
   },
   {
     id: 8,
-    title: "Job Occupations",
-    description: "Job occupations in a state",
-    endpoint: "/job/:pct-workforce/:pct-wage",
-    inputs: ["pct-workforce", "pct-wage"],
+    title: "Workforce Analysis",
+    description: "Occupations meeting specific workforce and wage criteria",
+    endpoint: "/job/:pctWorkforce/:pctWage",
+    inputs: ["pctWorkforce", "pctWage"],
     route: "/job"
   },
   {
     id: 9,
-    title: "Top Cities by Housing Price",
-    description: "Top cities by housing price in a state",
-    endpoint: "/top-cities/:state",
+    title: "Top Occupations",
+    description: "Top occupations by workforce percentage in a state",
+    endpoint: "/job/:state",
     inputs: ["state"],
-    route: "/top-cities"
+    route: "/job"
   },
   {
     id: 10,
-    title: "State Housing",
-    description: "Housing prices in a state",
+    title: "Top Cities by Property Type",
+    description: "Top cities by housing price for a specific property type in a state",
+    endpoint: "/housing/:state/:propertyType",
+    inputs: ["state", "propertyType"],
+    route: "/housing"
+  },
+  {
+    id: 11,
+    title: "Top Single-Family Home Cities",
+    description: "Top 20 most expensive cities for Single-Family Residential homes in a state",
     endpoint: "/housing/:state",
     inputs: ["state"],
     route: "/housing"
@@ -81,21 +97,18 @@ const dataQuestions = [
 const Sidebar = ({ 
   showSidebar, 
   setShowSidebar, 
-  isPinned, 
-  setIsPinned, 
   selectedQuestion, 
   setSelectedQuestion 
 }) => {
   const sidebarRef = useRef(null);
   const toggleButtonRef = useRef(null);
 
-  // Handle clicking outside sidebar to close it if not pinned
+  // Handle clicking outside sidebar to close it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         sidebarRef.current && 
         !sidebarRef.current.contains(event.target) && 
-        !isPinned &&
         toggleButtonRef.current &&
         !toggleButtonRef.current.contains(event.target)
       ) {
@@ -107,7 +120,7 @@ const Sidebar = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isPinned, setShowSidebar]);
+  }, [setShowSidebar]);
 
   // Handle window resize to ensure sidebar adapts to viewport height
   useEffect(() => {
@@ -167,17 +180,6 @@ const Sidebar = ({
               
               <div className="flex items-center gap-2">
                 <motion.button 
-                  className={`p-1.5 rounded-md transition-all duration-300 ${isPinned ? 'bg-mint text-eerie-black' : 'text-mint border border-mint/30 hover:bg-mint/10'}`}
-                  onClick={() => setIsPinned(!isPinned)}
-                  title={isPinned ? "Unpin Sidebar" : "Pin Sidebar"}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                </motion.button>
-                <motion.button 
                   className="text-mint p-1.5 rounded-md border border-mint/30 hover:bg-mint/10 transition-all duration-300"
                   onClick={() => setShowSidebar(false)}
                   whileHover={{ scale: 1.05 }}
@@ -208,9 +210,7 @@ const Sidebar = ({
                       }`}
                       onClick={() => {
                         setSelectedQuestion(question.id);
-                        if (!isPinned) {
-                          setShowSidebar(false);
-                        }
+                        setShowSidebar(false);
                       }}
                       whileHover={{ scale: 1.02, y: -1 }}
                       whileTap={{ scale: 0.98 }}

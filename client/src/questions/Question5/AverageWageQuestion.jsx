@@ -47,7 +47,7 @@ export default function AverageWageQuestion() {
 
     // Filter states based on search query
     useEffect(() => {
-        if (searchQuery) {
+        if (searchQuery && searchQuery !== selectedState) {
             const filtered = usStates
                 .filter((state) => 
                 state.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -59,7 +59,7 @@ export default function AverageWageQuestion() {
             setFilteredStates([]);
             setShowSearchResults(false);
         }
-    }, [searchQuery]);
+    }, [searchQuery, selectedState]);
 
     // Close year picker when clicking outside
     useEffect(() => {
@@ -218,6 +218,28 @@ export default function AverageWageQuestion() {
                         <div className="mb-2">
                             <Input onChange={handleInputChange} />
                         </div>
+                        
+                        {/* Selected State Indicator */}
+                        {selectedState && (
+                            <div className="mt-2 mb-3 flex items-center">
+                                <span className="bg-mint/20 text-mint px-2 py-1 rounded-md text-sm flex items-center">
+                                    {selectedState}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setSelectedState("");
+                                            setSearchQuery("");
+                                        }}
+                                        className="ml-2 text-mint hover:text-white"
+                                        aria-label="Clear selected state"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+                        )}
                         
                         {/* Search Results Dropdown */}
                         <AnimatePresence>

@@ -21,7 +21,7 @@ export default function CrimeIncidentsQuestion() {
     
     // Filter states based on search query
     useEffect(() => {
-        if (searchQuery) {
+        if (searchQuery && searchQuery !== selectedState) {
             const filtered = usStates
                 .filter((state) => 
                 state.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -33,7 +33,7 @@ export default function CrimeIncidentsQuestion() {
             setFilteredStates([]);
             setShowSearchResults(false);
         }
-    }, [searchQuery]);
+    }, [searchQuery, selectedState]);
 
     // Handle state selection from search results
     const handleStateSelect = (state) => {
@@ -120,6 +120,9 @@ export default function CrimeIncidentsQuestion() {
     const prepareChartData = () => {
         if (!crimeData || crimeData.length === 0) return null;
         
+        const stats = calculateStats();
+        const isIncrease = stats && stats.overallChange >= 0;
+        
         return {
             labels: crimeData.map(d => d.year),
             datasets: [
@@ -127,10 +130,10 @@ export default function CrimeIncidentsQuestion() {
                     label: `Crime Incidents in ${selectedState}`,
                     data: crimeData.map(d => d.totalincidents),
                     fill: false,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    borderColor: 'rgb(16, 185, 129)',
+                    backgroundColor: isIncrease ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                    borderColor: isIncrease ? 'rgb(239, 68, 68)' : 'rgb(16, 185, 129)',
                     tension: 0.1,
-                    pointBackgroundColor: 'rgb(16, 185, 129)',
+                    pointBackgroundColor: isIncrease ? 'rgb(239, 68, 68)' : 'rgb(16, 185, 129)',
                     pointRadius: 6,
                     pointHoverRadius: 8
                 }
@@ -222,6 +225,29 @@ export default function CrimeIncidentsQuestion() {
                             <Input onChange={handleInputChange} />
                         </div>
                         
+                        {/* Selected State Indicator */}
+                        {selectedState && (
+                            <div className="mt-2 mb-3 flex items-center">
+                                <span className="bg-mint/20 text-mint px-2 py-1 rounded-md text-sm flex items-center">
+                                    {selectedState}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setSelectedState("");
+                                            setSearchQuery("");
+                                            setCrimeData([]);
+                                        }}
+                                        className="ml-2 text-mint hover:text-white"
+                                        aria-label="Clear selected state"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+                        )}
+                        
                         {/* Search Results Dropdown */}
                         <AnimatePresence>
                             {showSearchResults && (
@@ -301,7 +327,7 @@ export default function CrimeIncidentsQuestion() {
                         exit={{ opacity: 0 }}
                         className="mt-8"
                     >
-                        <div className="bg-eerie-black/90 rounded-lg shadow-lg border border-mint/30 p-6">
+                        <div className="bg-eerie-black/90 rounded-lg shadow-lg border border-mint/30 p-6 pb-12">
                             <h2 className="text-2xl font-bold text-white mb-4 border-b border-mint/30 pb-2">
                                 Crime Trends in {selectedState}
                             </h2>
@@ -346,67 +372,70 @@ export default function CrimeIncidentsQuestion() {
                                 </div>
                             </div>
 
-                            {/* Year-by-Year Changes */}
-                            {stats && stats.changes.length > 0 && (
-                                <div className="mt-6">
-                                    <h3 className="text-lg font-medium text-mint mb-3">Year-by-Year Changes</h3>
-                                    <div className="bg-eerie-black/50 border border-mint/20 rounded-lg overflow-hidden">
+                            {/* Tables Section - Side by Side */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                {/* Year-by-Year Changes */}
+                                {stats && stats.changes.length > 0 && (
+                                    <div>
+                                        <h3 className="text-lg font-medium text-mint mb-3">Year-by-Year Changes</h3>
+                                        <div className="bg-eerie-black/50 border border-mint/20 rounded-lg overflow-hidden h-full">
+                                            <table className="min-w-full divide-y divide-mint/20">
+                                                <thead className="bg-eerie-black/70">
+                                                    <tr>
+                                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mint uppercase tracking-wider">
+                                                            Period
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-mint uppercase tracking-wider">
+                                                            Change
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-mint/10">
+                                                    {stats.changes.map((change, index) => (
+                                                        <tr key={index} className={index % 2 === 0 ? 'bg-eerie-black/30' : 'bg-eerie-black/50'}>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                                                {change.fromYear} to {change.toYear}
+                                                            </td>
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm text-right ${change.percentChange >= 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                                                {change.percentChange >= 0 ? '+' : ''}{formatPercentage(change.percentChange)}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Data Table */}
+                                <div>
+                                    <h3 className="text-lg font-medium text-mint mb-3">Crime Incidents by Year</h3>
+                                    <div className="bg-eerie-black/50 border border-mint/20 rounded-lg overflow-hidden h-full">
                                         <table className="min-w-full divide-y divide-mint/20">
                                             <thead className="bg-eerie-black/70">
                                                 <tr>
                                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mint uppercase tracking-wider">
-                                                        Period
+                                                        Year
                                                     </th>
                                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-mint uppercase tracking-wider">
-                                                        Change
+                                                        Total Incidents
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-mint/10">
-                                                {stats.changes.map((change, index) => (
+                                                {crimeData.map((data, index) => (
                                                     <tr key={index} className={index % 2 === 0 ? 'bg-eerie-black/30' : 'bg-eerie-black/50'}>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                                            {change.fromYear} to {change.toYear}
+                                                            {data.year}
                                                         </td>
-                                                        <td className={`px-6 py-4 whitespace-nowrap text-sm text-right ${change.percentChange >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                                                            {change.percentChange >= 0 ? '+' : ''}{formatPercentage(change.percentChange)}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-right">
+                                                            {formatNumber(data.totalincidents)}
                                                         </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
-                            )}
-
-                            {/* Data Table */}
-                            <div className="mt-6">
-                                <h3 className="text-lg font-medium text-mint mb-3">Crime Incidents by Year</h3>
-                                <div className="bg-eerie-black/50 border border-mint/20 rounded-lg overflow-hidden">
-                                    <table className="min-w-full divide-y divide-mint/20">
-                                        <thead className="bg-eerie-black/70">
-                                            <tr>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mint uppercase tracking-wider">
-                                                    Year
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-mint uppercase tracking-wider">
-                                                    Total Incidents
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-mint/10">
-                                            {crimeData.map((data, index) => (
-                                                <tr key={index} className={index % 2 === 0 ? 'bg-eerie-black/30' : 'bg-eerie-black/50'}>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                                        {data.year}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-right">
-                                                        {formatNumber(data.totalincidents)}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>

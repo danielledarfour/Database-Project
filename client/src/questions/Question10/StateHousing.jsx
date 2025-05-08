@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import Input from "../../ui/Input";
 import axios from "axios";
-import styled from "styled-components";
 import Loader from "../../ui/Loader";
 import { usStates } from "../../utils/cityData";
+import InfiniteMenu from "../../ui/InfiniteMenu";
+import propertyTypeImages from "../../utils/houseToImage";
+
 
 export default function StateHousing() {
     // State for inputs
     const [selectedState, setSelectedState] = useState("");
     const [stateSearchTerm, setStateSearchTerm] = useState("");
     const [showStateSuggestions, setShowStateSuggestions] = useState(false);
+    const [selectedPropertyType, setSelectedPropertyType] = useState("");
 
     // Data fetching state
     const [isLoading, setIsLoading] = useState(false);
@@ -60,18 +63,26 @@ export default function StateHousing() {
         setSelectedState(stateName);
         setStateSearchTerm(stateName);
         setShowStateSuggestions(false);
-        fetchHousingData(stateName);
     };
+
+    // Handle property type selection
+    const handlePropertyTypeSelect = useCallback((propertyType) => {
+        console.log("StateHousing: Property type selected:", propertyType);
+        // Only update state if actually different
+        if (propertyType !== selectedPropertyType) {
+            setSelectedPropertyType(propertyType);
+        }
+    }, [selectedPropertyType]);
 
     // Handle filter click
     const handleFilterClick = () => {
         setShowStateSuggestions(true);
     };
 
-    // Fetch housing data for the selected state
-    const fetchHousingData = async (state) => {
-        if (!state) {
-            setError("Please select a state");
+    // Fetch housing data for the selected state and property type
+    const fetchHousingData = async (state, propertyType) => {
+        if (!state || !propertyType) {
+            setError("Please select both a state and property type");
             return;
         }
 
@@ -80,7 +91,9 @@ export default function StateHousing() {
         setChartReady(false);
         
         try {
-            const response = await axios.get(`/housing/${state}`);
+            // Format property type for the API request
+            const formattedPropertyType = encodeURIComponent(propertyType);
+            const response = await axios.get(`/api/housing/${state}/${formattedPropertyType}`);
             
             // Ensure response.data is an array before mapping
             const responseData = Array.isArray(response.data) ? response.data : 
@@ -105,7 +118,7 @@ export default function StateHousing() {
     // Handle form submission
     const handleSubmit = (e) => {
         e && e.preventDefault();
-        fetchHousingData(selectedState);
+        fetchHousingData(selectedState, selectedPropertyType);
     };
 
     // Format currency values
@@ -135,14 +148,54 @@ export default function StateHousing() {
         <div className="space-y-6">
             <div className="bg-eerie-black/80 rounded-lg shadow-lg border border-mint/30 p-6">
                 <h2 className="text-2xl font-bold text-white mb-4 border-b border-mint/30 pb-2">
-                    Top 20 Most Expensive Cities for Single-Family Homes
+                    Top 20 Most Expensive Cities for {selectedPropertyType || "Properties"}
                 </h2>
                 
                 <div className="text-white/70 mb-6">
                     <p>
-                        Explore the most expensive cities for single-family residential properties in a selected state.
-                        This analysis ranks cities by their median sale price to identify premium housing markets.
+                        Explore the most expensive cities for different residential property types in a selected state.
+                        Choose a property type from the carousel below, then select a state to view the rankings.
                     </p>
+                </div>
+                
+                {/* Property Type Selector */}
+                <div className="mb-8">
+                    <h3 className="text-xl font-medium text-mint mb-4">Select Property Type</h3>
+                    <div style={{ height: '600px', position: 'relative' }}>
+                        {useMemo(() => (
+                            <InfiniteMenu 
+                                items={Object.entries(propertyTypeImages).map(([type, image]) => ({
+                                    image,
+                                    title: type,
+                                    description: `View housing data for ${type}`,
+                                    link: '#',
+                                    id: type,
+                                }))}
+                                onSelect={handlePropertyTypeSelect}
+                            />
+                        ), [handlePropertyTypeSelect])}
+                    </div>
+                    {selectedPropertyType && (
+                        <div className="mt-4 flex items-center justify-center">
+                            <span className="bg-mint/20 text-mint px-3 py-2 rounded-md flex items-center">
+                                <span className="font-medium">{selectedPropertyType}</span>
+                                <button 
+                                    onClick={() => setSelectedPropertyType("")}
+                                    className="ml-2 text-mint hover:text-white"
+                                    aria-label="Clear selected property type"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </span>
+                        </div>
+                    )}
+                    {!selectedPropertyType && (
+                        <div className="mt-4 text-center text-white/60">
+                            <p>Drag to rotate the selection wheel and choose a property type</p>
+                        </div>
+                    )}
                 </div>
                 
                 {/* Search Form */}
@@ -201,10 +254,31 @@ export default function StateHousing() {
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="bg-mint hover:bg-mint/80 text-eerie-black font-bold py-2 px-6 rounded-md transition-colors"
-                                disabled={!selectedState || isLoading}
+                                className={`${
+                                    !selectedState || !selectedPropertyType || isLoading
+                                        ? 'bg-gray-600 cursor-not-allowed'
+                                        : 'bg-mint hover:bg-mint/80'
+                                } text-eerie-black font-bold py-2 px-6 rounded-md transition-colors`}
+                                disabled={!selectedState || !selectedPropertyType || isLoading}
                             >
-                                {isLoading ? 'Loading...' : 'Find Top Cities'}
+                                {isLoading ? (
+                                    <span className="flex items-center">
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-eerie-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Loading...
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center">
+                                        Find Top Cities
+                                        {selectedPropertyType && selectedState && (
+                                            <span className="ml-2 text-xs opacity-80">
+                                                for {selectedPropertyType} in {selectedState}
+                                            </span>
+                                        )}
+                                    </span>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -224,7 +298,7 @@ export default function StateHousing() {
                 ) : housingData.length > 0 ? (
                     <div ref={chartContainerRef} className="mt-8">
                         <h3 className="text-xl font-bold text-mint mb-4">
-                            {`Top 20 Most Expensive Cities in ${selectedState}`}
+                            {`Top ${housingData.length} Most Expensive Cities for ${selectedPropertyType} in ${selectedState}`}
                         </h3>
                         
                         {/* Horizontal Bar Chart */}
@@ -276,7 +350,7 @@ export default function StateHousing() {
                                 </div>
                                 
                                 <div className="bg-eerie-black/50 p-4 rounded-lg border border-mint/20">
-                                    <p className="text-white/70 text-sm">Average Price (Top 20)</p>
+                                    <p className="text-white/70 text-sm">Average Price</p>
                                     <p className="text-xl font-bold text-white">
                                         {formatCurrency(
                                             housingData.reduce((sum, city) => sum + (city.mediansaleprice || 0), 0) / housingData.length
@@ -293,9 +367,9 @@ export default function StateHousing() {
                             </div>
                         )}
                     </div>
-                ) : selectedState && !isLoading && (
+                ) : selectedState && selectedPropertyType && !isLoading && (
                     <div className="bg-eerie-black/50 border border-mint/20 rounded-lg p-6 text-center text-white/70">
-                        <p>No housing data available for this state. Please try another state.</p>
+                        <p>No housing data available for {selectedPropertyType} in {selectedState}. Please try another combination.</p>
                     </div>
                 )}
             </div>
@@ -308,7 +382,7 @@ export default function StateHousing() {
                 
                 <div className="text-white/70 space-y-4">
                     <p>
-                        Single-family home prices vary significantly between cities within the same state, often due to factors like:
+                        Property prices vary significantly between cities and property types within the same state, often due to factors like:
                     </p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
