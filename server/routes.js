@@ -429,23 +429,23 @@ router.get("/job/:state", (req, res) => {
   );
 });
 
+
 // ROUTE FOR QUESTION 10
-// The question: What are the top 20 most expensive cities for a given property type   in a given state?
+// What are the top 20 most expensive cities for Single‑Family Residential in a given state?
 
 router.get("/housing/:state/:propertyType", (req, res) => {
-  const { state, propertyType } = req.params;
+  let { state, propertyType } = req.params;
+  // Properly capitalize state name
+  state = formatStateName(state);
   pool.query(
-    `
-    SELECT city,
-      mediansaleprice
-      FROM   housingRecord hr
-    JOIN   state s USING (stateid)
-    WHERE  s.statename = $1
+    `SELECT city, mediansaleprice
+    FROM housingRecord hr
+    JOIN state s USING (stateid)
+    WHERE s.statename = $1
     AND  propertytype = $2
     ORDER  BY mediansaleprice DESC
     LIMIT 20;
-    `,
-    [state, propertyType],
+    `, [state, propertyType],
     (error, results) => {
       if (error) {
         console.log(error);
@@ -456,33 +456,6 @@ router.get("/housing/:state/:propertyType", (req, res) => {
     }
   );
 });
-
-// ROUTE FOR QUESTION 10
-// What are the top 20 most expensive cities for Single‑Family Residential in a given state?
-
-router.get("/housing/:state", (req, res) => {
-  let { state } = req.params;
-  // Properly capitalize state name
-  state = formatStateName(state);
-  pool.query(
-    `SELECT city, mediansaleprice
-    FROM housingRecord hr
-    JOIN state s USING (stateid)
-    WHERE s.statename = $1
-    AND  propertytype = 'Single Family Residential'
-    ORDER  BY mediansaleprice DESC
-    LIMIT 20;
-    `, [state],
-    (error, results) => {
-      if (error) {
-        console.log(error);
-        res.status(500).json({ message: "Error: " + error.message });
-      } else {
-        res.json(results.rows);
-      }
-    }
-  );
-})
 
 // ROUTE FOR CHATBOT - simplified with frontend intent
 router.post("/chatbot", async (req, res) => {
