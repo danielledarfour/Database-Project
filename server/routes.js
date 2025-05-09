@@ -335,7 +335,6 @@ router.get("/housing/affordability", (req, res) => {
 // The question:
 // For every state, which occupation titles have a combined share of the workforce
 // under X%, and average wage more than Y% above the state's overall average wage?
-// ~54 sec runtime
 
 router.get("/job/:pctWorkforce/:pctWage", (req, res) => {
   let { pctWorkforce, pctWage } = req.params;
