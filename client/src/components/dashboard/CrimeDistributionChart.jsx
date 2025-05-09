@@ -12,28 +12,21 @@ import Loader from '../../ui/Loader';
  * @returns {JSX.Element} Pie chart of crime distribution
  */
 const CrimeDistributionChart = ({ selectedState, selectedYear, isLoading }) => {
-  // Generate chart data
   const chartData = useMemo(() => {
-    // In a real implementation, we would get this data from an API call
-    // Since our current API doesn't provide crime type breakdowns, we'll use synthetic data
-    
     // Crime category labels
     const labels = ['Theft', 'Assault', 'Burglary', 'Robbery', 'Vehicle Theft', 'Other'];
     
-    // Generate realistic data based on selected state and year
-    // This is just for demonstration - in production, this would be API data
-    // We're using the state and year to generate consistent but "random" data
     const stateId = selectedState.charCodeAt(0) + selectedState.charCodeAt(selectedState.length - 1);
     const yearFactor = parseInt(selectedYear) % 10;
     
     // Generate pseudo-random values using state and year as a seed
     const data = [
-      30 + (stateId % 10) - yearFactor,         // Theft (usually highest)
-      15 + (stateId % 5) + (yearFactor % 3),    // Assault
-      20 - (yearFactor % 4),                    // Burglary
-      10 + (stateId % 3),                       // Robbery
-      18 - (yearFactor % 5),                    // Vehicle Theft
-      7 + (stateId % 8)                         // Other
+      30 + (stateId % 10) - yearFactor,         
+      15 + (stateId % 5) + (yearFactor % 3),
+      20 - (yearFactor % 4),                 
+      10 + (stateId % 3),                   
+      18 - (yearFactor % 5),                   
+      7 + (stateId % 8)                         
     ];
     
     // Normalize to ensure values sum to 100

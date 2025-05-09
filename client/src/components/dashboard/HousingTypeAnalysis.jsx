@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import Card from '../../ui/Card';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Loader from '../../ui/Loader';
 
@@ -96,21 +96,17 @@ const HousingTypeAnalysis = ({ state, city, year }) => {
 
   if (loading) {
     return (
-      <Card className="col-span-1 lg:col-span-2 h-96">
-        <CardContent className="flex items-center justify-center h-full">
-          <Loader />
-        </CardContent>
-      </Card>
+      <div className="col-span-1 lg:col-span-2 h-96 flex items-center justify-center">
+        <Loader />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card className="col-span-1 lg:col-span-2 h-96">
-        <CardContent className="flex items-center justify-center h-full">
-          <p className="text-center text-red-500">{error}</p>
-        </CardContent>
-      </Card>
+      <div className="col-span-1 lg:col-span-2 h-96 flex items-center justify-center">
+        <p className="text-center text-red-500">{error}</p>
+      </div>
     );
   }
 
@@ -140,58 +136,49 @@ const HousingTypeAnalysis = ({ state, city, year }) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <Card className="col-span-1">
-        <CardHeader>
-          <CardTitle>Most Popular Housing Type</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Distribution of property types in {state} ({year})
-          </p>
-        </CardHeader>
-        <CardContent className="h-72">
-          {housingData && housingData.propertyTypeData.length > 0 ? (
-            <>
-              <div className="mb-4 text-center">
-                <span className="text-xl font-semibold">
-                  {housingData.mostPopularType}
-                </span>
-              </div>
-              <ResponsiveContainer width="100%" height="80%">
-                <PieChart>
-                  <Pie
-                    data={housingData.propertyTypeData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {housingData.propertyTypeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={renderCustomTooltip} />
-                </PieChart>
-              </ResponsiveContainer>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p>No property type data available</p>
-            </div>
-          )}
-        </CardContent>
+      <Card 
+        title="Most Popular Housing Type"
+        content={`Distribution of property types in ${state} (${year}): ${housingData.mostPopularType}`}
+        month="Housing"
+        date="Types"
+      >
+        {housingData && housingData.propertyTypeData.length > 0 ? (
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={housingData.propertyTypeData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {housingData.propertyTypeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={renderCustomTooltip} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p>No property type data available</p>
+          </div>
+        )}
       </Card>
 
-      <Card className="col-span-1">
-        <CardHeader>
-          <CardTitle>Most Expensive Cities</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Top 5 cities with highest average housing prices in {state}
-          </p>
-        </CardHeader>
-        <CardContent className="h-72">
-          {housingData && housingData.expensiveCities.length > 0 ? (
+      <Card
+        title="Most Expensive Cities"
+        content={`Top 5 cities with highest average housing prices in ${state}`}
+        month="Price"
+        date="Data"
+      >
+        {housingData && housingData.expensiveCities.length > 0 ? (
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={housingData.expensiveCities}
@@ -204,12 +191,12 @@ const HousingTypeAnalysis = ({ state, city, year }) => {
                 <Bar dataKey="avgPrice" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p>No price data available</p>
-            </div>
-          )}
-        </CardContent>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p>No price data available</p>
+          </div>
+        )}
       </Card>
     </div>
   );

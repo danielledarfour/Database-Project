@@ -85,14 +85,6 @@ const PropertyTypeAnalysisChart = lazy(() =>
   import("../components/dashboard/PropertyTypeAnalysisChart")
 );
 
-// New lazy-loaded components for housing type and occupation analysis
-const HousingTypeAnalysis = lazy(() =>
-  import("../components/dashboard/HousingTypeAnalysis")
-);
-const PopularOccupation = lazy(() =>
-  import("../components/dashboard/PopularOccupation")
-);
-
 // Reusable loading component
 const ChartLoader = ({ height = "16rem" }) => (
   <div className={`flex justify-center items-center`} style={{ height }}>
@@ -117,8 +109,7 @@ const decades = {
   "1980s": { start: 1980, end: 1989 },
   "1990s": { start: 1990, end: 1999 },
   "2000s": { start: 2000, end: 2009 },
-  "2010s": { start: 2010, end: 2019 },
-  "2020s": { start: 2020, end: 2023 },
+  "2010s": { start: 2010, end: 2014 },
 };
 
 // Crime rate and income benchmarks
@@ -126,13 +117,6 @@ const PROPERTY_CRIME_BENCHMARKS = {
   high: 3000, // High crime rate threshold
   medium: 2000, // Medium crime rate threshold
   low: 1000, // Low crime rate threshold
-};
-
-// National median income benchmarks (approximate - for comparison)
-const INCOME_BENCHMARKS = {
-  high: 70000, // High income threshold
-  medium: 55000, // Medium income threshold
-  low: 40000, // Low income threshold
 };
 
 const Dashboard = () => {
@@ -144,7 +128,8 @@ const Dashboard = () => {
   const initialFilters = {
     state: urlParams.get("state") || "Florida",
     city: urlParams.get("city") || "Miami",
-    year: urlParams.get("year") ? parseInt(urlParams.get("year")) : 1988,
+    year: urlParams.get("year") ? parseInt(urlParams.get("year")) : 1981,
+    propertyType: urlParams.get("propertyType") || "Single-Family Residential",
   };
 
   // Use the custom hook for data management
@@ -168,6 +153,13 @@ const Dashboard = () => {
     return stateData ? stateData.cities : [];
   }, [filters.state]);
 
+  const availablePropertyTypes = [
+    "Single-Family Residential",
+    "Multi-Family Residential",
+    "Condo/Co-op",
+    "All-Residential",
+  ];
+
   // Sync URL with filters
   useEffect(() => {
     const params = new URLSearchParams();
@@ -176,6 +168,10 @@ const Dashboard = () => {
 
     if (filters.city) {
       params.set("city", filters.city);
+    }
+
+    if (filters.propertyType) {
+      params.set("propertyType", filters.propertyType);
     }
 
     navigate(
@@ -192,42 +188,36 @@ const Dashboard = () => {
     // Initialize with empty values to show loading state
     const metrics = [
       {
-        title: "Avg Property Crime Rate",
+        title: "Property Crime Rate",
         value: "—",
         change: "—",
         isPositive: true,
       },
       {
-        title: "Median Income",
-        value: "—",
-        change: "—",
-        isPositive: true,
-      },
-      {
-        title: "Affordability Ratio",
+        title: "Housing Affordability",
         value: "—",
         change: "—",
         isPositive: false,
       },
       {
-        title: "Avg Violent Crime Rate",
+        title: "Violent Crime Rate",
         value: "—",
         change: "—",
         isPositive: true,
       },
     ];
-
+    
     if (data.affordabilityData && data.affordabilityData.length > 0) {
       const stateData = data.affordabilityData.find(
-        (d) => d.statename.toLowerCase() === filters.state.toLowerCase()
+        (d) => d.statename && d.statename.toLowerCase() === filters.state.toLowerCase()
       );
 
       if (stateData) {
-        metrics[2] = {
-          title: "Affordability Ratio",
-          value: stateData.price_to_income_ratio,
-          change: stateData.price_to_income_ratio > 5 ? "High" : "Moderate",
-          isPositive: stateData.price_to_income_ratio <= 5,
+        metrics[1] = {
+          title: "Housing Affordability",
+          value: stateData.price_to_income_ratio || "—",
+          change: parseFloat(stateData.price_to_income_ratio) > 5 ? "High" : "Moderate",
+          isPositive: parseFloat(stateData.price_to_income_ratio) <= 5,
         };
       }
     }
@@ -242,7 +232,7 @@ const Dashboard = () => {
       if (sortedData.length > 0) {
         // Calculate property crime rate for each year (using 80% of total incidents as property crimes)
         const propertyCrimeRates = sortedData.map((yearData) => {
-          const incidents = parseInt(yearData.totalincidents);
+          const incidents = parseInt(yearData.totalincidents || 0);
           // Calculate property crime rate per 100,000 population
           return Math.round(incidents * 0.8);
         });
@@ -267,7 +257,7 @@ const Dashboard = () => {
 
         // Update property crime metric
         metrics[0] = {
-          title: "Avg Property Crime Rate",
+          title: "Total Crime Rate",
           value: avgPropertyCrimeRate.toString(),
           change: propertySeverityLevel,
           isPositive: avgPropertyCrimeRate < PROPERTY_CRIME_BENCHMARKS.medium,
@@ -275,7 +265,7 @@ const Dashboard = () => {
 
         // Calculate violent crime rates for each year (20% of total incidents)
         const violentCrimeRates = sortedData.map((yearData) => {
-          const incidents = parseInt(yearData.totalincidents);
+          const incidents = parseInt(yearData.totalincidents || 0);
           return Math.round(incidents * 0.2);
         });
 
@@ -298,57 +288,11 @@ const Dashboard = () => {
         }
 
         // Update violent crime metric
-        metrics[3] = {
-          title: "Avg Violent Crime Rate",
+        metrics[2] = {
+          title: "Violent Crime Rate",
           value: avgViolentCrimeRate.toString(),
           change: violentSeverityLevel,
           isPositive: avgViolentCrimeRate < 300,
-        };
-      }
-    }
-
-    // Calculate Median Income from occupation data
-    if (data.topOccupationsData && data.topOccupationsData.length > 0) {
-      // Use wage data to estimate median income for the state
-      const wages = data.topOccupationsData
-        .filter((job) => job.avgwage && !isNaN(parseFloat(job.avgwage)))
-        .map((job) => parseFloat(job.avgwage));
-
-      if (wages.length > 0) {
-        // Sort wages and find the median value
-        wages.sort((a, b) => a - b);
-        let medianIncome;
-
-        if (wages.length % 2 === 0) {
-          // If there's an even number of wages, take the average of the middle two
-          const midIndex = wages.length / 2;
-          medianIncome = (wages[midIndex - 1] + wages[midIndex]) / 2;
-        } else {
-          // If there's an odd number of wages, take the middle one
-          medianIncome = wages[Math.floor(wages.length / 2)];
-        }
-
-        // Round to the nearest hundred
-        medianIncome = Math.round(medianIncome / 100) * 100;
-
-        // Determine income level based on benchmarks
-        let incomeLevel;
-        if (medianIncome >= INCOME_BENCHMARKS.high) {
-          incomeLevel = "High";
-        } else if (medianIncome >= INCOME_BENCHMARKS.medium) {
-          incomeLevel = "Above Average";
-        } else if (medianIncome >= INCOME_BENCHMARKS.low) {
-          incomeLevel = "Moderate";
-        } else {
-          incomeLevel = "Below Average";
-        }
-
-        // Update median income metric
-        metrics[1] = {
-          title: "Median Income",
-          value: `$${medianIncome.toLocaleString()}`,
-          change: incomeLevel,
-          isPositive: medianIncome >= INCOME_BENCHMARKS.medium,
         };
       }
     }
@@ -407,6 +351,7 @@ const Dashboard = () => {
       <DashboardFilters
         filters={filters}
         availableCities={availableCities}
+        availablePropertyTypes={availablePropertyTypes}
         onFilterChange={updateFilter}
         onSearch={searchData}
         isSearching={loadingStates.searching}
@@ -429,21 +374,6 @@ const Dashboard = () => {
           />
         </Suspense>
 
-        {/* New Housing Type Analysis Component */}
-        <Suspense fallback={<ChartLoader height="22rem" />}>
-          <HousingTypeAnalysis
-            state={filters.state}
-            city={filters.city}
-            year={filters.year}
-          />
-        </Suspense>
-
-        {/* New Popular Occupation Component */}
-        <Suspense fallback={<ChartLoader height="22rem" />}>
-          <PopularOccupation
-            state={filters.state}
-          />
-        </Suspense>
 
         {/* Chart Tabs */}
         <div className="bg-eerie-black rounded-lg shadow-md border border-white/40 mb-6">
@@ -555,25 +485,6 @@ const Dashboard = () => {
                 selectedYear={filters.year}
                 isLoading={loadingStates.crimeTrend}
               />
-            </Suspense>
-          </motion.div>
-
-          {/* Employment Distribution */}
-          <motion.div
-            className="mouse-position-border bg-eerie-black rounded-lg shadow-md border border-gray-800 p-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <h3 className="text-lg font-medium text-mint mb-1">
-              Employment by Sector
-            </h3>
-            <p className="text-gray-400 mb-4">
-              Distribution of employment across major industries for{" "}
-              {filters.year}.
-            </p>
-            <Suspense fallback={<ChartLoader height="16rem" />}>
-              <EmploymentDistributionChart selectedState={filters.state} />
             </Suspense>
           </motion.div>
         </div>

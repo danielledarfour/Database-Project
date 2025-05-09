@@ -26,7 +26,7 @@ const EmploymentDistributionChart = ({ selectedState }) => {
       
       try {
         const serverBaseUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000/api';
-        const response = await axios.get(`${serverBaseUrl}/jobs/${selectedState}`);
+        const response = await axios.get(`${serverBaseUrl}/job/${selectedState}`);
         
         if (response.data && response.data.length > 0) {
           // Filter out occupations with very small percentages for better visualization

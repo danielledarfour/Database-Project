@@ -190,7 +190,8 @@ router.get("/housing/:state/:startYear/:endYear", (req, res) => {
   let { state, startYear, endYear } = req.params;
 
   state = formatStateName(state);
-  
+  console.log(state);
+
   pool.query(`
     WITH FilteredAgg AS (
       SELECT

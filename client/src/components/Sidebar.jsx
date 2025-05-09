@@ -83,14 +83,6 @@ const dataQuestions = [
     endpoint: "/housing/:state/:propertyType",
     inputs: ["state", "propertyType"],
     route: "/housing"
-  },
-  {
-    id: 11,
-    title: "Top Single-Family Home Cities",
-    description: "Top 20 most expensive cities for Single-Family Residential homes in a state",
-    endpoint: "/housing/:state",
-    inputs: ["state"],
-    route: "/housing"
   }
 ];
 
