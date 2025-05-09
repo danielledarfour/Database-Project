@@ -19,7 +19,6 @@ const CrimeRateTrendChart = ({ selectedState, crimeTrendData, isLoading }) => {
     let propertyCrimeData = [];
     
     if (crimeTrendData && crimeTrendData.length > 0) {
-      // Sort data by year
       const sortedData = [...crimeTrendData].sort((a, b) => parseInt(a.year) - parseInt(b.year));
       
       // Extract years for labels

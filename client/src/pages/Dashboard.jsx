@@ -212,7 +212,6 @@ const Dashboard = () => {
       },
     ];
 
-    // Update with real data if available
     if (data.affordabilityData && data.affordabilityData.length > 0) {
       const stateData = data.affordabilityData.find(
         (d) => d.statename.toLowerCase() === filters.state.toLowerCase()
