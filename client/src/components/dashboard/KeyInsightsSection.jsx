@@ -86,7 +86,6 @@ const KeyInsightsSection = ({
       const percentChange = ((latestIncidents - previousIncidents) / previousIncidents * 100).toFixed(1);
       const direction = percentChange >= 0 ? 'increased' : 'decreased';
       
-      // Replace the second insight with crime data
       customInsights[1] = {
         title: 'Crime Trend',
         description: `Crime in ${selectedState} has ${direction} by ${Math.abs(percentChange)}% from ${previousYear} to ${latestYear}.`,

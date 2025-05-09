@@ -116,10 +116,6 @@ const MapVisualization = () => {
     setLoading(true);
     try {
       // TODO: Implement API fetch for detailed state data
-      // const serverBaseUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
-      // const response = await fetch(`${serverBaseUrl}/api/state-details/${state}?year=${year}&dataType=${dataType}`);
-      // const detailedData = await response.json();
-
       setSelectedState(state);
     } catch (error) {
       console.error(`Error fetching details for ${state}:`, error);

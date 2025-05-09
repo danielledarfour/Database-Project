@@ -7,11 +7,9 @@ import React, {
   useMemo,
 } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Line, Bar, Pie } from "react-chartjs-2";
-import axios from "axios";
+import { motion } from "framer-motion";
 import Loader from "../ui/Loader";
-import cityData, { usStates } from "../utils/cityData";
+import cityData from "../utils/cityData";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -64,17 +62,12 @@ const WageAnalysisChart = lazy(() =>
 const CrimeDistributionChart = lazy(() =>
   import("../components/dashboard/CrimeDistributionChart")
 );
-const EmploymentDistributionChart = lazy(() =>
-  import("../components/dashboard/EmploymentDistributionChart")
-);
 const KeyInsightsSection = lazy(() =>
   import("../components/dashboard/KeyInsightsSection")
 );
 const TopCrimesByCityChart = lazy(() =>
   import("../components/dashboard/TopCrimesByCityChart")
 );
-
-// New lazy-loaded housing analysis components
 const HousingPriceAnalysisChart = lazy(() =>
   import("../components/dashboard/HousingPriceAnalysisChart")
 );
@@ -104,7 +97,6 @@ const availableYears = Array.from(
   (_, i) => yearRange.max - i
 );
 
-// Define decades for quick scrolling
 const decades = {
   "1980s": { start: 1980, end: 1989 },
   "1990s": { start: 1990, end: 1999 },
@@ -188,7 +180,13 @@ const Dashboard = () => {
     // Initialize with empty values to show loading state
     const metrics = [
       {
-        title: "Property Crime Rate",
+        title: "Maximum Incidents Across All Years",
+        value: "—",
+        change: "—",
+        isPositive: true,
+      },
+      {
+        title: "Minimum Incidents Across All Years",
         value: "—",
         change: "—",
         isPositive: true,
@@ -199,12 +197,6 @@ const Dashboard = () => {
         change: "—",
         isPositive: false,
       },
-      {
-        title: "Violent Crime Rate",
-        value: "—",
-        change: "—",
-        isPositive: true,
-      },
     ];
     
     if (data.affordabilityData && data.affordabilityData.length > 0) {
@@ -213,7 +205,7 @@ const Dashboard = () => {
       );
 
       if (stateData) {
-        metrics[1] = {
+        metrics[2] = {
           title: "Housing Affordability",
           value: stateData.price_to_income_ratio || "—",
           change: parseFloat(stateData.price_to_income_ratio) > 5 ? "High" : "Moderate",
@@ -230,69 +222,54 @@ const Dashboard = () => {
 
       // Calculate average property crime rate across all available years
       if (sortedData.length > 0) {
-        // Calculate property crime rate for each year (using 80% of total incidents as property crimes)
-        const propertyCrimeRates = sortedData.map((yearData) => {
-          const incidents = parseInt(yearData.totalincidents || 0);
-          // Calculate property crime rate per 100,000 population
-          return Math.round(incidents * 0.8);
-        });
-
-        // Calculate the average property crime rate
-        const avgPropertyCrimeRate = Math.round(
-          propertyCrimeRates.reduce((sum, rate) => sum + rate, 0) /
-            propertyCrimeRates.length
+        // Find minimum incidents across all available years
+        const minIncidents = Math.min(
+          ...sortedData.map((yearData) => parseInt(yearData.totalincidents || 0))
         );
 
         // Determine severity level based on benchmarks
-        let propertySeverityLevel;
-        if (avgPropertyCrimeRate >= PROPERTY_CRIME_BENCHMARKS.high) {
-          propertySeverityLevel = "High";
-        } else if (avgPropertyCrimeRate >= PROPERTY_CRIME_BENCHMARKS.medium) {
-          propertySeverityLevel = "Medium";
-        } else if (avgPropertyCrimeRate >= PROPERTY_CRIME_BENCHMARKS.low) {
-          propertySeverityLevel = "Low";
+        let minSeverityLevel;
+        if (minIncidents >= PROPERTY_CRIME_BENCHMARKS.high) {
+          minSeverityLevel = "High";
+        } else if (minIncidents >= PROPERTY_CRIME_BENCHMARKS.medium) {
+          minSeverityLevel = "Medium";
+        } else if (minIncidents >= PROPERTY_CRIME_BENCHMARKS.low) {
+          minSeverityLevel = "Low";
         } else {
-          propertySeverityLevel = "Very Low";
+          minSeverityLevel = "Very Low";
         }
 
-        // Update property crime metric
-        metrics[0] = {
-          title: "Total Crime Rate",
-          value: avgPropertyCrimeRate.toString(),
-          change: propertySeverityLevel,
-          isPositive: avgPropertyCrimeRate < PROPERTY_CRIME_BENCHMARKS.medium,
+        // Update min incidents metric
+        metrics[1] = {
+          title: "Minimum Incidents Across All Years",
+          value: minIncidents.toString(),
+          change: minSeverityLevel,
+          isPositive: minIncidents < PROPERTY_CRIME_BENCHMARKS.medium,
         };
 
-        // Calculate violent crime rates for each year (20% of total incidents)
-        const violentCrimeRates = sortedData.map((yearData) => {
-          const incidents = parseInt(yearData.totalincidents || 0);
-          return Math.round(incidents * 0.2);
-        });
-
-        // Calculate the average violent crime rate
-        const avgViolentCrimeRate = Math.round(
-          violentCrimeRates.reduce((sum, rate) => sum + rate, 0) /
-            violentCrimeRates.length
+        // Find maximum incidents across all available years
+        const maxIncidents = Math.max(
+          ...sortedData.map((yearData) => parseInt(yearData.totalincidents || 0))
         );
 
-        // Determine severity level for violent crime
-        let violentSeverityLevel;
-        if (avgViolentCrimeRate >= 500) {
-          violentSeverityLevel = "High";
-        } else if (avgViolentCrimeRate >= 300) {
-          violentSeverityLevel = "Medium";
-        } else if (avgViolentCrimeRate >= 200) {
-          violentSeverityLevel = "Low";
+        // Determine severity level for max incidents
+        let maxSeverityLevel;
+        if (maxIncidents >= 500) {
+          maxSeverityLevel = "High";
+        } else if (maxIncidents >= 300) {
+          maxSeverityLevel = "Medium";
+        } else if (maxIncidents >= 200) {
+          maxSeverityLevel = "Low";
         } else {
-          violentSeverityLevel = "Very Low";
+          maxSeverityLevel = "Very Low";
         }
 
-        // Update violent crime metric
-        metrics[2] = {
-          title: "Violent Crime Rate",
-          value: avgViolentCrimeRate.toString(),
-          change: violentSeverityLevel,
-          isPositive: avgViolentCrimeRate < 300,
+        // Update max incidents metric
+        metrics[0] = {
+          title: "Maximum Incidents Across All Years",
+          value: maxIncidents.toString(),
+          change: maxSeverityLevel,
+          isPositive: maxIncidents < 300,
         };
       }
     }
