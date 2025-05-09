@@ -63,9 +63,14 @@ export default function HousingCrimeQuestion() {
         setError(null);
         
         try {
-            const formattedState = selectedState.replace(/ /g, '_');
-            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/housing/${formattedState}/${startYear}/${endYear}`);
+            const formattedState = selectedState.replace(/ /g, "_");
+            const baseURL = import.meta.env.VITE_SERVER_URL;
+            const response = await axios.get(
+                `${baseURL}/housing/${formattedState}/${startYear}/${endYear}`
+            );
             setResults(response.data);
+            // print a fraction of the data
+            console.log(response.data.slice(0, 10));
         } catch (err) {
             console.error("Error fetching data:", err);
             setError("Failed to fetch data. Please try again.");

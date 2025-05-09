@@ -188,6 +188,9 @@ router.get("/state/:state", (req, res) => {
 // housing prices, and employment levels grouped by both city and industry?
 router.get("/housing/:state/:startYear/:endYear", (req, res) => {
   let { state, startYear, endYear } = req.params;
+
+  state = formatStateName(state);
+  
   pool.query(`
     WITH FilteredAgg AS (
       SELECT

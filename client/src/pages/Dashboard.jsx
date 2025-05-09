@@ -58,9 +58,6 @@ ChartJS.defaults.plugins.tooltip.bodyColor = "rgba(255, 255, 255, 0.9)";
 const KeyMetricsSection = lazy(() =>
   import("../components/dashboard/KeyMetricsSection")
 );
-const CrimeRateTrendChart = lazy(() =>
-  import("../components/dashboard/CrimeRateTrendChart")
-);
 const WageAnalysisChart = lazy(() =>
   import("../components/dashboard/WageAnalysisChart")
 );
@@ -86,6 +83,14 @@ const PopularCitiesChart = lazy(() =>
 );
 const PropertyTypeAnalysisChart = lazy(() =>
   import("../components/dashboard/PropertyTypeAnalysisChart")
+);
+
+// New lazy-loaded components for housing type and occupation analysis
+const HousingTypeAnalysis = lazy(() =>
+  import("../components/dashboard/HousingTypeAnalysis")
+);
+const PopularOccupation = lazy(() =>
+  import("../components/dashboard/PopularOccupation")
 );
 
 // Reusable loading component
@@ -417,10 +422,26 @@ const Dashboard = () => {
       {/* Main Dashboard Content */}
       <div className="container mx-auto px-4 pb-12">
         {/* Key Metrics */}
-        <Suspense fallback={<ChartLoader height="10rem" />}>
+        <Suspense fallback={<ChartLoader height="12rem" />}>
           <KeyMetricsSection
             metrics={generateKeyMetricsData()}
             isLoading={loadingStates.affordability}
+          />
+        </Suspense>
+
+        {/* New Housing Type Analysis Component */}
+        <Suspense fallback={<ChartLoader height="22rem" />}>
+          <HousingTypeAnalysis
+            state={filters.state}
+            city={filters.city}
+            year={filters.year}
+          />
+        </Suspense>
+
+        {/* New Popular Occupation Component */}
+        <Suspense fallback={<ChartLoader height="22rem" />}>
+          <PopularOccupation
+            state={filters.state}
           />
         </Suspense>
 
@@ -429,7 +450,6 @@ const Dashboard = () => {
           <div className="border-b border-gray-800">
             <nav className="flex space-x-4 p-4">
               {[
-                { id: "crimeRate", label: "Crime Rate Trends" },
                 { id: "wageAnalysis", label: "Wage Analysis" },
                 { id: "topCrimes", label: "Top Crime Cities" },
               ].map((tab) => (
@@ -450,15 +470,6 @@ const Dashboard = () => {
 
           <div className="p-6">
             <Suspense fallback={<ChartLoader height="20rem" />}>
-              {activeChart === "crimeRate" && (
-                <CrimeRateTrendChart
-                  selectedState={filters.state}
-                  selectedCity={filters.city}
-                  crimeTrendData={data.crimeTrendData}
-                  isLoading={loadingStates.crimeTrend}
-                />
-              )}
-
               {activeChart === "wageAnalysis" && (
                 <WageAnalysisChart
                   selectedState={filters.state}
