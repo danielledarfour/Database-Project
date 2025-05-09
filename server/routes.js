@@ -343,31 +343,23 @@ router.get("/job/:pctWorkforce/:pctWage", (req, res) => {
   console.log(pctWorkforce, pctWage);
   pool.query(
     `
-    WITH Occupations AS (
       SELECT
-        s.StateID,
         s.StateName,
-        j.OccupationTitle,
-        SUM(j.PctOfTotalEmployment) AS WorkforcePct,
-        AVG(j.AnnualMeanWage) AS OccupationAvgWage,
-        AVG(j.AnnualMeanWage) -
-        (SELECT AVG(j2.AnnualMeanWage)
-        FROM Job j2
-        WHERE j2.StateID = s.StateID) AS AmountAboveStateAvg
-      FROM State s
-        JOIN Job j ON j.StateID = s.StateID
-      GROUP BY s.StateID, s.StateName, j.OccupationTitle
-      HAVING
-        SUM(j.PctOfTotalEmployment) < $1
-        AND AVG(j.AnnualMeanWage) >
-             (1 + $2 / 100) * (SELECT AVG(j3.AnnualMeanWage)
-                    FROM Job j3
-                    WHERE j3.StateID = s.StateID)
-    )
-    SELECT *
-    FROM Occupations o
-    ORDER BY o.StateName, o.AmountAboveStateAvg DESC;
-  `,
+        sj.OccupationTitle,
+        sj.WorkforcePct,
+        sj.AvgWage AS OccupationAvgWage,
+        sj.AvgWage - sa.StateAvgWage AS AmountAboveStateAvg
+      FROM StateJobStatsAgg sj
+             JOIN (
+        SELECT StateID, AVG(AvgWage) AS StateAvgWage
+        FROM StateJobStatsAgg
+        GROUP BY StateID
+      ) sa ON sj.StateID = sa.StateID
+             JOIN State s ON sj.StateID = s.StateID
+      WHERE sj.WorkforcePct < $1
+        AND sj.AvgWage > sa.StateAvgWage * (1 + $2 / 100.0)
+      ORDER BY s.StateName, AmountAboveStateAvg DESC;
+    `,
     [pctWorkforce, pctWage],
     (error, results) => {
       if (error) {
