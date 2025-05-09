@@ -239,7 +239,7 @@ const APISpecPage = () => {
             id: 'housing-metrics-timespan',
             routeNumber: 4,
             method: 'GET',
-            path: '/housing/:state/:startYear/:endYear',
+            path: '/housing-route/:state/:startYear/:endYear',
             description: 'Returns housing metrics across a specified year range for a given state, including crime incidents, sale prices, and occupation data.',
             routeParams: [
                 {

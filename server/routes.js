@@ -5,7 +5,6 @@ const config = require("./config.json");
 const { Pool, types } = require("pg");
 const OpenAI = require("openai");
 
-
 // Override the default parsing for BIGINT (PostgreSQL type ID 20)
 types.setTypeParser(20, (val) => parseInt(val, 10));
 
@@ -96,12 +95,11 @@ router.get("/crime/:id", (req, res) => {
   );
 });
 
-
 function formatStateName(str) {
   // Replace underscores with actual spaces
-  str = str.replace(/_/g, ' ');
+  str = str.replace(/_/g, " ");
   // Capitalize each word
-  return str.replace(/\b\w/g, char => char.toUpperCase());
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 // ROUTE FOR QUESTION 1
@@ -186,13 +184,13 @@ router.get("/state/:state", (req, res) => {
 // ROUTE FOR QUESTION 4
 // Across all cities in a given state and year range, what are the average crime incidents,
 // housing prices, and employment levels grouped by both city and industry?
-router.get("/housing/:state/:startYear/:endYear", (req, res) => {
+router.get("/housing-route/:state/:startYear/:endYear", (req, res) => {
   let { state, startYear, endYear } = req.params;
 
   state = formatStateName(state);
-  console.log(state);
 
-  pool.query(`
+  pool.query(
+    `
     WITH FilteredAgg AS (
       SELECT
         agg.City,
@@ -201,8 +199,7 @@ router.get("/housing/:state/:startYear/:endYear", (req, res) => {
         sj.OccupationTitle,
         AVG(agg.AvgIncidents) AS AvgIncidents,
         AVG(agg.AvgSalePrice) AS AvgSalePrice,
-        sj.AvgWage AS AvgEmployment,
-        MAX(agg.NumPropertyTypes) AS NumPropertyTypes
+        sj.AvgWage AS AvgEmployment
       FROM
         CrimeHousingCityAgg agg
           JOIN State s ON agg.StateID = s.StateID
@@ -215,18 +212,21 @@ router.get("/housing/:state/:startYear/:endYear", (req, res) => {
     SELECT *
     FROM FilteredAgg
     ORDER BY AvgIncidents DESC, AvgEmployment;
-    `, [state, startYear, endYear], (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Error: " + error.message });
-    } else {
-      res.json(results.rows);
+    `,
+    [state, startYear, endYear],
+    (error, results) => {
+      if (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error: " + error.message });
+      } else {
+        res.json(results.rows);
+      }
     }
-  });
+  );
 });
 
 // ROUTE FOR QUESTION FIVE
-// Given a state and a year, what are the average wages for each occupation in that state considering 
+// Given a state and a year, what are the average wages for each occupation in that state considering
 // that the state has both the housing and crime data for such a year.
 
 router.get("/state/:state/:year", (req, res) => {
@@ -343,7 +343,6 @@ router.get("/housing/affordability", (req, res) => {
 router.get("/job/:pctWorkforce/:pctWage", (req, res) => {
   let { pctWorkforce, pctWage } = req.params;
   // console log the params
-  console.log(pctWorkforce, pctWage);
   pool.query(
     `
       SELECT
@@ -424,7 +423,6 @@ router.get("/job/:state", (req, res) => {
   );
 });
 
-
 // ROUTE FOR QUESTION 10
 // What are the top 20 most expensive cities for Single‑Family Residential in a given state?
 
@@ -440,7 +438,8 @@ router.get("/housing/:state/:propertyType", (req, res) => {
     AND  propertytype = $2
     ORDER  BY mediansaleprice DESC
     LIMIT 20;
-    `, [state, propertyType],
+    `,
+    [state, propertyType],
     (error, results) => {
       if (error) {
         console.log(error);
@@ -456,10 +455,11 @@ router.get("/housing/:state/:propertyType", (req, res) => {
 router.post("/chatbot", async (req, res) => {
   const { apiKey, intent, message, pageDOM } = req.body;
 
-
   // 1. Auth
   if (!apiKey) {
-    return res.status(401).json({ message: "API key missing", error: "api key missing" });
+    return res
+      .status(401)
+      .json({ message: "API key missing", error: "api key missing" });
   }
 
   const openai = new OpenAI({ apiKey });
@@ -473,10 +473,10 @@ router.post("/chatbot", async (req, res) => {
       properties: {
         title: { type: "string" },
         description: { type: "string" },
-        link: { type: "string" }
+        link: { type: "string" },
       },
       required: ["title", "description", "link"],
-    }
+    },
   };
 
   const guideDef = {
@@ -485,23 +485,23 @@ router.post("/chatbot", async (req, res) => {
     parameters: {
       type: "object",
       properties: {
-        task:      { type: "string" },
+        task: { type: "string" },
         destination_page: { type: "string" },
         steps: {
           type: "array",
           items: {
             type: "object",
             properties: {
-              step_number:    { type: "integer" },
-              instruction:    { type: "string" },
-              location:       { type: "string" }
+              step_number: { type: "integer" },
+              instruction: { type: "string" },
+              location: { type: "string" },
             },
-            required: ["step_number", "instruction", "location"]
-          }
-        }
+            required: ["step_number", "instruction", "location"],
+          },
+        },
       },
       required: ["task", "destination_page", "steps"],
-    }
+    },
   };
 
   // 3. Pick the one you need
@@ -522,12 +522,11 @@ router.post("/chatbot", async (req, res) => {
     const messages = [
       {
         role: "system",
-        content: `You are a dashboard assistant. Use the single function provided to either point users to a page (navigation_card) or walk them through steps (step_by_step_guide). Available routes to search on are:             <Route path="/" element={<HeroPage />} /><Route path="/search" element={<SearchPage />} /><Route path="/dashboard" element={<Dashboard />} /><Route path="/map" element={<MapPage />} /><Route path="/ai-insights" element={<AIInsightsPage />} /><Route path="/api-specs" element={<APISpecPage />} />{/* <Route path="/about" element={<About />} /> */}{/* 404 Error Page - catches all other routes */}<Route path="*" element={<ErrorPage />} /> `
+        content: `You are a dashboard assistant. Use the single function provided to either point users to a page (navigation_card) or walk them through steps (step_by_step_guide). Available routes to search on are:             <Route path="/" element={<HeroPage />} /><Route path="/search" element={<SearchPage />} /><Route path="/dashboard" element={<Dashboard />} /><Route path="/map" element={<MapPage />} /><Route path="/ai-insights" element={<AIInsightsPage />} /><Route path="/api-specs" element={<APISpecPage />} />{/* <Route path="/about" element={<About />} /> */}{/* 404 Error Page - catches all other routes */}<Route path="*" element={<ErrorPage />} /> `,
       },
       { role: "system", content: `Page DOM summary: ${pageDOM}` },
-      { role: "user", content: message }
+      { role: "user", content: message },
     ];
-
 
     // 5. Call OpenAI
     const resp = await openai.chat.completions.create({
@@ -535,17 +534,17 @@ router.post("/chatbot", async (req, res) => {
       messages,
       functions,
       function_call: forceCall,
-      max_tokens: 600
+      max_tokens: 600,
     });
 
     const msg = resp.choices[0].message;
-    
 
     // 6. If it called a function, parse & return
     if (msg.function_call) {
       const payload = JSON.parse(msg.function_call.arguments);
-      const key = msg.function_call.name === "navigation_card" ? "card" : "guide";
-      
+      const key =
+        msg.function_call.name === "navigation_card" ? "card" : "guide";
+
       console.log(`Sending ${key} response to client`);
       return res.json({ success: true, reply: msg.content, [key]: payload });
     }
@@ -555,16 +554,13 @@ router.post("/chatbot", async (req, res) => {
     res.json({ success: true, reply: msg.content });
   } catch (err) {
     console.error(err);
-    const isAuth = err.status === 401 || /api key|authentication/i.test(err.message);
+    const isAuth =
+      err.status === 401 || /api key|authentication/i.test(err.message);
     return res.status(isAuth ? 401 : 500).json({
-      message: isAuth
-        ? "Invalid API key."
-        : "Internal chatbot error.",
-      error: err.message
+      message: isAuth ? "Invalid API key." : "Internal chatbot error.",
+      error: err.message,
     });
   }
 });
-
-
 
 module.exports = router;
