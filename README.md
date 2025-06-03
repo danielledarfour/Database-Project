@@ -2,9 +2,11 @@
 
 A comprehensive data visualization platform for exploring the relationship between housing, crime rates and employment trends across the United States.
 
-## LIVE SITE URL
+## LIVE SITE URL (just frontend features)
 
 [Investigator Official Site](https://databases-five.vercel.app/) - Deployed with Vercel
+
+🎥 [Watch the Demo Video!](https://github.com/user-attachments/assets/a72d3393-a2ae-4566-8c26-6cac44863212)
 
 ## ✨ Features
 
