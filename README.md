@@ -6,7 +6,7 @@ A comprehensive data visualization platform for exploring the relationship betwe
 
 [Investigator Official Site](https://databases-five.vercel.app/) - Deployed with Vercel
 
-🎥 [Watch the Demo Video!](https://github.com/user-attachments/assets/a72d3393-a2ae-4566-8c26-6cac44863212)
+https://github.com/user-attachments/assets/a72d3393-a2ae-4566-8c26-6cac44863212
 
 ## ✨ Features
 
